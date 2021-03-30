@@ -1,6 +1,6 @@
 
 export default class RoomManager {
-  private players: Player[]; 
+  private players: Map<string, Player>;
   private readonly TICK_RATE: number = 0.1;
 
   constructor() {
@@ -8,7 +8,9 @@ export default class RoomManager {
   }
 
   public pushPlayers(p: Player): void {
-    this.players.push(p); 
+    if (!players.has(p.playerId) {
+      this.players.set(p.playerId, p); 
+    }
   }
 
   public tickeClientState(timeElapsed) {
@@ -20,15 +22,38 @@ export default class RoomManager {
 
   }
 
-  public updateEntities() {
-    players.forEach(p => {
+  public updatePos({playerId: string, move: Move}): void {
+    switch(move.direction) {
+      case 1:
+        
 
-    });
+    }
 
   }
 
+  public addMove(playerId: string, move: Move) {
+    if (this.players.has(playerId)) {
+      p = this.players.get(playerId);
+      p.moves.push(move);
+    }
+  }
 
+  public updateEntities(): Map<string, Move> {
+    const = playersMoves: Map<string, Move>;
 
+    players.forEach( p => {
+      const move = p.moves.pop();
+      playersMoves.set(p.playerId, move);
+    });
+
+    return playersMoves;
+        
+  }
+  public movePlayer(p: Player): void {
+    
+  }
+
+  
 
 }
 
@@ -39,10 +64,21 @@ export enum Direction {
   Right,
 }
 
-export interface Player {
-  id: string;
-  x, y: number;
+export type Pos = [x: number, y: number];
+
+export interface Move {
+  timestamp: string;
+  moving: boolean;
   direction: Direction;
-  move: boolean;
+}
+
+export interface Status {
+  pos: Pos;
   alive: boolean;
+}
+
+export interface Player {
+  playerId: string;
+  stats: Status;
+  moves: Move[];
 }
