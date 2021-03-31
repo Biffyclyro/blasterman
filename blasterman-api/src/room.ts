@@ -1,15 +1,23 @@
+import {Physics} from 'universe';
 
 export default class RoomManager {
   private players: Map<string, Player>;
   private readonly TICK_RATE: number = 0.1;
+  private events: Event;
 
   constructor() {
     this.tickTimer: number = 0.0;
+    this.physics = new Physics(); 
   }
 
   public pushPlayers(p: Player): void {
     if (!players.has(p.playerId) {
+      p.moveSwitch = (time: number) => {
+        setTimeout( p.moves.pop(), time);
+      }
+      p.addEventListner('move_switch', p.moveSwitch()); 
       this.players.set(p.playerId, p); 
+      
     }
   }
 
@@ -35,6 +43,8 @@ export default class RoomManager {
     if (this.players.has(playerId)) {
       p = this.players.get(playerId);
       p.moves.push(move);
+      this.dispatchEvent(physics.moveSwitch);
+      
     }
   }
 
@@ -81,4 +91,5 @@ export interface Player {
   playerId: string;
   stats: Status;
   moves: Move[];
+  moveSitch(time: number): void;
 }
