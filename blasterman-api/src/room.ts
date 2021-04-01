@@ -6,8 +6,9 @@ export default class RoomManager {
   private events: Event;
 
   constructor() {
+    this.players = new Map();
     this.tickTimer: number = 0.0;
-    this.physics = new Physics(); 
+    this.physics = new Physics(this.players); 
   }
 
   public pushPlayers(p: Player): void {
@@ -41,17 +42,17 @@ export default class RoomManager {
 
   public addMove(playerId: string, move: Move) {
     if (this.players.has(playerId)) {
-      p = this.players.get(playerId);
+      const p = this.players.get(playerId);
       p.moves.push(move);
-      this.dispatchEvent(physics.moveSwitch);
+      this.dispatchEvent(this.physics.moveSwitch);
       
     }
   }
 
   public updateEntities(): Map<string, Move> {
-    const = playersMoves: Map<string, Move>;
+    const playersMoves: Map<string, Move>;
 
-    players.forEach( p => {
+    this.players.forEach( p => {
       const move = p.moves.pop();
       playersMoves.set(p.playerId, move);
     });

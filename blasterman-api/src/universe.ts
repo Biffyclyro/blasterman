@@ -1,6 +1,6 @@
 export class Physics {
- constructor(){
-
+ constructor(private entities: Map<string, T>){
+    
     this.moveSwitch = new Event('move_switch');
  }
 
