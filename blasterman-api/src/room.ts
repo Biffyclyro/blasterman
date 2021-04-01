@@ -1,56 +1,53 @@
-import {Physics} from 'universe';
+import {Physics, Action} from './universe';
+import EventEmitter from 'events';
+
 
 export default class RoomManager {
   private players: Map<string, Player>;
   private readonly TICK_RATE: number = 0.1;
-  private events: Event;
+  private physics: Physics;
 
   constructor() {
     this.players = new Map();
-    this.tickTimer: number = 0.0;
-    this.physics = new Physics(this.players); 
+    this.physics = new Physics(); 
   }
 
-  public pushPlayers(p: Player): void {
-    if (!players.has(p.playerId) {
-      p.moveSwitch = (time: number) => {
-        setTimeout( p.moves.pop(), time);
+  pushPlayers(p: Player): void {
+    if (!this.players.has(p.playerId) ) {
+      p.moveSwitch = async (time: number) => {
+        setTimeout( p.moves.pop, time);
       }
-      p.addEventListner('move_switch', p.moveSwitch()); 
+      p.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
       
     }
   }
 
-  public tickeClientState(timeElapsed) {
-    this.tickTimer += timeElapsed;
+  tickeClientState(timeElapsed: number) {
+    /*this.tickTimer += timeElapsed;
 
     if ( this.tickTimer < this.TICK_RATE) return;
 
     this.tickTimer = 0.0;
+    */
 
   }
 
-  public updatePos({playerId: string, move: Move}): void {
-    switch(move.direction) {
-      case 1:
-        
 
-    }
-
-  }
-
-  public addMove(playerId: string, move: Move) {
+  addMove(playerId: string, move: Move) {
     if (this.players.has(playerId)) {
       const p = this.players.get(playerId);
       p.moves.push(move);
-      this.dispatchEvent(this.physics.moveSwitch);
+      p.emit('move_switch');
+
       
     }
   }
 
-  public updateEntities(): Map<string, Move> {
-    const playersMoves: Map<string, Move>;
+
+
+  updateEntities(): Map<string, Move> {
+    const playersMoves = new Map<string, Move>();
 
     this.players.forEach( p => {
       const move = p.moves.pop();
@@ -60,7 +57,7 @@ export default class RoomManager {
     return playersMoves;
         
   }
-  public movePlayer(p: Player): void {
+  movePlayers(p: Player): void{
     
   }
 
@@ -88,9 +85,9 @@ export interface Status {
   alive: boolean;
 }
 
-export interface Player {
+export interface Player extends EventEmitter{
   playerId: string;
   stats: Status;
   moves: Move[];
-  moveSitch(time: number): void;
+  moveSwitch?: Action; 
 }

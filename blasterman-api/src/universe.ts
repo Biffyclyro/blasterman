@@ -1,11 +1,17 @@
 export class Physics {
- constructor(private entities: Map<string, T>){
-    
-    this.moveSwitch = new Event('move_switch');
+  private periodicFunctions: Action[]
+ constructor(...p: Action[]) { 
+    this.periodicFunctions = p;
  }
 
-  public moveEntity(): void {
 
-    
+  public updateWorld(): void {
+    this.periodicFunctions.forEach( f => f());   
   }
+    
 }
+
+export interface Action{
+  (...args: any): Promise<void>;
+}
+
