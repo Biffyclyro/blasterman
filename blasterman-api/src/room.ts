@@ -15,6 +15,7 @@ export default class RoomManager {
     if (!this.players.has(p.playerId) ) {
       p.moveSwitch = async (time: number) => {
         setTimeout( p.moves.pop, time);
+        return p;
       }
       p.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
@@ -31,6 +32,8 @@ export default class RoomManager {
     */
 
   }
+
+  
 
 
   addMove(playerId: string, move: Move) {
@@ -94,5 +97,5 @@ export interface Player extends EventEmitter{
   playerId: string;
   stats: Status;
   moves: Move[];
-  moveSwitch?: (time: number) => Promise<void>; 
+  moveSwitch?: (time: number) => Promise<Player>; 
 }
