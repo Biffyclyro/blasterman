@@ -4,15 +4,14 @@ import EventEmitter from 'events';
 
 export default class RoomManager {
   private players: Map<string, Player>;
-  private readonly TICK_RATE: number = 0.1;
   private physics: Physics;
 
   constructor() {
     this.players = new Map();
-    this.physics = new Physics(); 
+    this.physics = new Physics(this.updateEntities); 
   }
 
-  pushPlayers(p: Player): void {
+  addPlayers(p: Player): void {
     if (!this.players.has(p.playerId) ) {
       p.moveSwitch = async (time: number) => {
         setTimeout( p.moves.pop, time);
@@ -39,37 +38,43 @@ export default class RoomManager {
       const p = this.players.get(playerId);
       p.moves.push(move);
       p.emit('move_switch');
-
       
     }
   }
 
 
 
-  updateEntities(): Map<string, Move> {
-    const playersMoves = new Map<string, Move>();
+  async updateEntities(): Promise<void> { 
 
     this.players.forEach( p => {
-      const move = p.moves.pop();
-      playersMoves.set(p.playerId, move);
+      const move = p.moves[0];
+      switch(move.direction) {
+        case 1:
+          p.stats.pos[0] += 160;
+          break;
+        case 2:
+          p.stats.pos[0] -= 160;
+          break;
+        case 3:
+          p.stats.pos[1] += 160;
+          break;
+        case 4:
+          p.stats.pos[1] -= 160;
+          break;
+      }
+
     });
-
-    return playersMoves;
-        
   }
-  movePlayers(p: Player): void{
-    
-  }
-
-  
 
 }
+
+
 
 export enum Direction {
   Up = 1,
   Down,
-  Left,
   Right,
+  Left,
 }
 
 export type Pos = [x: number, y: number];
@@ -89,5 +94,5 @@ export interface Player extends EventEmitter{
   playerId: string;
   stats: Status;
   moves: Move[];
-  moveSwitch?: Action; 
+  moveSwitch?: (time: number) => Promise<void>; 
 }
