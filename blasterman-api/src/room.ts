@@ -1,14 +1,20 @@
 import {Physics, Action} from './universe';
 import EventEmitter from 'events';
+import {QuadTree, Box, Point, Circle} from 'js-quadtree';
 
 
 export default class RoomManager {
   private players: Map<string, Player>;
   private physics: Physics;
+  private battleField: QuadTree;
+  private readonly VELOCITY: number;
+    
 
   constructor() {
     this.players = new Map();
     this.physics = new Physics(this.updateEntities); 
+    this.campo = new QuadTree(new Box(0, 0, 31, 17));
+    this.VELOCITY = 5;
   }
 
   addPlayers(p: Player): void {
@@ -45,6 +51,11 @@ export default class RoomManager {
     }
   }
 
+  findEntity({x: number, y:number}): boolean {
+    return this.battleField.query(new Box(x, y, 1, 1)) == undefined;
+  }
+
+  
 
 
   async updateEntities(): Promise<void> { 
@@ -53,16 +64,24 @@ export default class RoomManager {
       const move = p.moves[0];
       switch(move.direction) {
         case 1:
-          p.stats.pos[0] += 160;
+          if (!this.findEntity(pos[0] + 1, pos[1])){
+            p.stats.pos[0] += this.VELOCITY;
+          }
           break;
         case 2:
-          p.stats.pos[0] -= 160;
+          if (!this.findEntity(pos[0] - 1, pos[1])){
+            p.stats.pos[0] -= this.VELOCITY;
+          }
           break;
         case 3:
-          p.stats.pos[1] += 160;
+          if (!this.findEntity(pos[0] , pos[1] + 1)){
+            p.stats.pos[1] += this.VELOCITY;
+          }
           break;
         case 4:
-          p.stats.pos[1] -= 160;
+          if (!this.findEntity(pos[0], pos[1] - 1)){
+            p.stats.pos[1] -= this.VELOCITY;
+          }
           break;
       }
 
