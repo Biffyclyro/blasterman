@@ -52,7 +52,7 @@ export default class RoomManager {
   }
 
   findEntity({x: number, y:number}): boolean {
-    return this.battleField.query(new Box(x, y, 1, 1)) == undefined;
+    return this.battleField.query(new Box(x, y, 1, 1)) === undefined;
   }
 
   
