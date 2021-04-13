@@ -4,16 +4,16 @@ import {QuadTree, Box, Point, Circle} from 'js-quadtree';
 
 
 export default class RoomManager {
-  private players: Map<string, Player>;
-  private physics: Physics;
-  private battleField: QuadTree;
+  private readonly players: Map<string, Player>;
+  private readonly physics: Physics;
+  private readonly battleField: QuadTree;
   private readonly VELOCITY: number;
     
 
   constructor() {
     this.players = new Map();
     this.physics = new Physics(this.updateEntities); 
-    this.campo = new QuadTree(new Box(0, 0, 31, 17));
+    this.battleField = new QuadTree(new Box(0, 0, 31, 17));
     this.VELOCITY = 5;
   }
 
@@ -29,29 +29,17 @@ export default class RoomManager {
     }
   }
 
-  tickeClientState(timeElapsed: number) {
-    /*this.tickTimer += timeElapsed;
-
-    if ( this.tickTimer < this.TICK_RATE) return;
-
-    this.tickTimer = 0.0;
-    */
-
-  }
-
-  
-
-
-  addMove(playerId: string, move: Move) {
-    if (this.players.has(playerId)) {
-      const p = this.players.get(playerId);
+ 
+  addMove(playerId: string, move: Move): void {
+    const p = this.players.get(playerId);
+    if (p) {
       p.moves.push(move);
       p.emit('move_switch');
       
     }
   }
 
-  findEntity({x: number, y:number}): boolean {
+  findEntity(x:number, y:number): boolean {
     return this.battleField.query(new Box(x, y, 1, 1)) === undefined;
   }
 
@@ -60,8 +48,9 @@ export default class RoomManager {
 
   async updateEntities(): Promise<void> { 
 
-    this.players.forEach( p => {
+    this.players.forEach( (p: Player) => {
       const move = p.moves[0];
+      const pos = p.stats.pos;
       switch(move.direction) {
         case 1:
           if (!this.findEntity(pos[0] + 1, pos[1])){
