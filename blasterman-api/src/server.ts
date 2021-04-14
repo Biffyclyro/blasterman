@@ -2,7 +2,7 @@ import socketIO from "socket.io";
 import express from "express";
 import cors from "cors";
 import RoomManager from './room.ts';
-import {Player, PlayerCommand} from './entities';
+import {Player, PlayerCommand, Movement, isMovement} from './entities';
 
 
 interface ObjectDto<T> {
@@ -52,9 +52,9 @@ io.on("connection", socket => {
       }
     });
 
-    socket.on('move', (movementRequest: ObjectDto<PlayerCommand>) => {
-      const roomId: string | undefined = movementRequest.info;
-      const playerCommand: PlayerCommand | undefined = movementRequest.data;
+    socket.on('command', (commandRequest: ObjectDto<PlayerCommand>) => {
+      const roomId: string | undefined = commandRequest.info;
+      const playerCommand: PlayerCommand | undefined = commandRequest.data;
       let room: RoomManager | undefined ;
 
       if (roomId) {
@@ -62,7 +62,11 @@ io.on("connection", socket => {
       }
 
       if (room && playerCommand){
-       room.addMove(playerCommand); 
+        if (isMovement(playerCommand.command)) {
+          room.addMove(playerCommand); 
+        } else {
+          room.setBomb(playerCommand.command);
+        }
       }
     });
 

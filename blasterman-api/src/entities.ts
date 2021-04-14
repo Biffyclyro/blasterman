@@ -23,7 +23,7 @@ export interface Status {
 
 export interface PlayerCommand {
   playerId: string;
-  movement: Movement;
+  command: Movement | {pos: Pos, timestamp: string};
 }
 
 export interface Player extends EventEmitter{
@@ -33,12 +33,19 @@ export interface Player extends EventEmitter{
   moveSwitch?: (time: number) => Promise<void>; 
 }
 
-export class Dinamite {
-  constructor() {
-    setTimeout( this.explode, 3);
+export class Dinamite extends EventEmitter{
+  constructor(private pos: Pos, private timestamp: string) {
+    super();
+    setTimeout( this.explode, 3000);
   }
 
   explode(): void {
-    
+   this.emit('explode', this); 
   }
 }
+
+export const isMovement = (movement: Movement | {pos: Pos, timestamp: string}): movement is Movement => {
+  return (movement as Movement).direction !== undefined;
+}
+
+

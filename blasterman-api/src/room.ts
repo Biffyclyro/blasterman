@@ -1,6 +1,6 @@
 import {Physics, Action} from './universe';
 import {QuadTree, Box, Point, Circle} from 'js-quadtree';
-import {Player, PlayerCommand, Dinamite} from './entities';
+import {Player, PlayerCommand, Dinamite, Pos, Movement} from './entities';
 
 
 export default class RoomManager {
@@ -32,10 +32,10 @@ export default class RoomManager {
   }
 
  
-  addMove({playerId, movement}: PlayerCommand): void {
+  addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
-      p.moves!.push(movement);
+      p.moves!.push((command as Movement));
       p.emit('move_switch');
       
     }
@@ -45,8 +45,17 @@ export default class RoomManager {
     return this.battleField.query(new Box(x, y, 1, 1)) === undefined;
   }
 
-  setBomb(): void {
-    const dinamite = new Dinamite();
+  setBomb({pos, timestamp}: {pos: Pos, timestamp: string}): void {
+    let dinamite: Dinamite | null;
+
+    setTimeout(() => {
+      dinamite = new Dinamite(pos, timestamp)
+      dinamite.on('explode', (d: Dinamite) => {
+        if (d === dinamite ){ 
+          dinamite = null
+        }
+      });
+    }, 40);
   }
     
 
