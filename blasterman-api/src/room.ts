@@ -1,10 +1,10 @@
 import {Physics, Action} from './universe';
-import EventEmitter from 'events';
 import {QuadTree, Box, Point, Circle} from 'js-quadtree';
+import {Player, PlayerCommand, Dinamite} from './entities';
 
 
 export default class RoomManager {
-  private readonly players: Map<string, Player>;
+  private players: Map<string, Player>;
   private readonly physics: Physics;
   private readonly battleField: QuadTree;
   private readonly VELOCITY: number;
@@ -19,9 +19,11 @@ export default class RoomManager {
 
   addPlayers(p: Player): void {
     if (!this.players.has(p.playerId) ) {
+      p.moves = [];
       p.moveSwitch = async (time: number) => {
-        setTimeout( p.moves.pop, time);
-        return p;
+        if (p.moves) {
+          setTimeout( p.moves.pop, time);
+        }
       }
       p.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
@@ -30,10 +32,10 @@ export default class RoomManager {
   }
 
  
-  addMove(playerId: string, move: Move): void {
+  addMove({playerId, movement}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
-      p.moves.push(move);
+      p.moves!.push(movement);
       p.emit('move_switch');
       
     }
@@ -43,35 +45,41 @@ export default class RoomManager {
     return this.battleField.query(new Box(x, y, 1, 1)) === undefined;
   }
 
-  
+  setBomb(): void {
+    const dinamite = new Dinamite();
+  }
+    
 
 
   async updateEntities(): Promise<void> { 
 
     this.players.forEach( (p: Player) => {
-      const move = p.moves[0];
-      const pos = p.stats.pos;
-      switch(move.direction) {
-        case 1:
-          if (!this.findEntity(pos[0] + 1, pos[1])){
-            p.stats.pos[0] += this.VELOCITY;
-          }
-          break;
-        case 2:
-          if (!this.findEntity(pos[0] - 1, pos[1])){
-            p.stats.pos[0] -= this.VELOCITY;
-          }
-          break;
-        case 3:
-          if (!this.findEntity(pos[0] , pos[1] + 1)){
-            p.stats.pos[1] += this.VELOCITY;
-          }
-          break;
-        case 4:
-          if (!this.findEntity(pos[0], pos[1] - 1)){
-            p.stats.pos[1] -= this.VELOCITY;
-          }
-          break;
+
+      if(p.moves && p.stats) {
+        const move = p.moves[0];
+        const pos = p.stats.pos;
+        switch(move.direction) {
+          case 1:
+            if (!this.findEntity(pos[0] + 1, pos[1])){
+              p.stats.pos[0] += this.VELOCITY;
+            }
+            break;
+          case 2:
+            if (!this.findEntity(pos[0] - 1, pos[1])){
+              p.stats.pos[0] -= this.VELOCITY;
+            }
+            break;
+          case 3:
+            if (!this.findEntity(pos[0] , pos[1] + 1)){
+              p.stats.pos[1] += this.VELOCITY;
+            }
+            break;
+          case 4:
+            if (!this.findEntity(pos[0], pos[1] - 1)){
+              p.stats.pos[1] -= this.VELOCITY;
+            }
+            break;
+        }
       }
 
     });
@@ -81,29 +89,3 @@ export default class RoomManager {
 
 
 
-export enum Direction {
-  Up = 1,
-  Down,
-  Right,
-  Left,
-}
-
-export type Pos = [x: number, y: number];
-
-export interface Move {
-  timestamp: string;
-  moving: boolean;
-  direction: Direction;
-}
-
-export interface Status {
-  pos: Pos;
-  alive: boolean;
-}
-
-export interface Player extends EventEmitter{
-  playerId: string;
-  stats: Status;
-  moves: Move[];
-  moveSwitch?: (time: number) => Promise<Player>; 
-}

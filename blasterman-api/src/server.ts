@@ -2,6 +2,13 @@ import socketIO from "socket.io";
 import express from "express";
 import cors from "cors";
 import RoomManager from './room.ts';
+import {Player, PlayerCommand} from './entities';
+
+
+interface ObjectDto<T> {
+  info?: string;
+  data?: T;
+}
 
 const port = 8080;
 const app: express.Application = express();
@@ -25,14 +32,39 @@ const io = new socketIO.Server(server, {
 });
 
 io.on("connection", socket => {
-    socket.on('enter_room', (roomId: string) => {
+    socket.on('enter_room', ( enterRequest: ObjectDto<Player>) => {
+      
+      let roomId = enterRequest.info;
+      if (!roomId) {
+        roomId = '1';
+      }
       const room = rooms.get(roomId);
+      const player: Player | undefined = enterRequest.data;
 
-      if(room) {
-        rooms.set(roomId, new RoomManager());
+      if(player) {
+
+        if(!room) {
+          rooms.set(roomId, new RoomManager());
+        }
+        socket.join(roomId);
+        room!.addPlayers(player);
+        console.log(`conecatado na sala ${roomId}`);
+      }
+    });
+
+    socket.on('move', (movementRequest: ObjectDto<PlayerCommand>) => {
+      const roomId: string | undefined = movementRequest.info;
+      const playerCommand: PlayerCommand | undefined = movementRequest.data;
+      let room: RoomManager | undefined ;
+
+      if (roomId) {
+        room = rooms.get(roomId);
       }
 
-        socket.join(roomId);
-        console.log(`conecatado na sala ${roomId}`);
-    })
+      if (room && playerCommand){
+       room.addMove(playerCommand); 
+      }
+    });
+
 });
+
