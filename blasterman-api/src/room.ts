@@ -30,7 +30,6 @@ export default class RoomManager {
       
     }
   }
-
  
   addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
@@ -54,23 +53,28 @@ export default class RoomManager {
     let dinamite: Dinamite | null;
 
     setTimeout(() => {
-      dinamite = new Dinamite(pos, timestamp)
-      dinamite.on('explode', (d: Dinamite) => {
-        if (d === dinamite ){ 
-          dinamite = null
-        }
-      });
+      if (!this.findEntity(pos[0], pos[1])) {
+        dinamite = new Dinamite(pos, timestamp);
+
+        this.battleField.insert(new Point(pos[0], pos[1], dinamite));
+
+        dinamite.on('explode', (d: Dinamite) => {
+          if (d === dinamite ){ 
+            dinamite = null
+          }
+        });
+
+      }
     }, 40);
   }
 
-
-  async updateEntities(): Promise<void> { 
-
-    this.players.forEach( (p: Player) => {
-
-      if(p.moves && p.stats) {
+  async movePlayers(p: Player): Promise<void> {
+    
+    if(p.moves && p.stats) {
         const move = p.moves[0];
         const pos = p.stats.pos;
+        this.battleField.remove(new Point(pos[0],pos[1]));
+
         switch(move.direction) {
           case 1:
             if (!this.findEntity(pos[0] + 1, pos[1])){
@@ -93,12 +97,27 @@ export default class RoomManager {
             }
             break;
         }
-      }
 
-    });
+        this.battleField.insert(new Point(pos[0], pos[1]));
+      }
   }
 
+  addEntity(x: number, y: number, data?: object): void {
+    if(!this.findEntity(x,y)){
+      this.battleField.insert(new Point(x, y, data));
+    }
+  }
+
+  removeEntity(x: number, y: number): void {
+    if(this.findEntity(x,y)){
+      this.battleField.remove(new Point(x, y));
+    }
+  }
+
+  async updateEntities(): Promise<void> { 
+
+    this.players.forEach( (p: Player) => {
+      this.movePlayers(p);
+    });
+  }
 }
-
-
-
