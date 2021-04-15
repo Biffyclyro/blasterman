@@ -41,8 +41,13 @@ export default class RoomManager {
     }
   }
 
-  findEntity(x:number, y:number): boolean {
-    return this.battleField.query(new Box(x, y, 1, 1)) === undefined;
+  findEntity(x:number, 
+             y:number, 
+             width: number = 1, 
+             height: number = 1): boolean {
+
+    return this.battleField
+                 .query(new Box(x, y, width, height)) === undefined;
   }
 
   setBomb({pos, timestamp}: {pos: Pos, timestamp: string}): void {
@@ -57,7 +62,6 @@ export default class RoomManager {
       });
     }, 40);
   }
-    
 
 
   async updateEntities(): Promise<void> { 
