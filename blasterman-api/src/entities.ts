@@ -1,5 +1,6 @@
 import EventEmitter from 'events';
 import RoomManager from './room';
+import {QuadTree, Box, Point, Circle} from 'js-quadtree';
 
 export enum Direction {
   Up = 1,
@@ -33,6 +34,10 @@ export interface Player extends EventEmitter{
   moveSwitch?: (time: number) => Promise<void>; 
 }
 
+export const isMovement = (movement: Movement | {pos: Pos, timestamp: string}): movement is Movement => {
+  return (movement as Movement).direction !== undefined;
+}
+
 export class Dinamite extends EventEmitter{
   constructor(private pos: Pos, private timestamp: string) {
     super();
@@ -44,8 +49,24 @@ export class Dinamite extends EventEmitter{
   }
 }
 
-export const isMovement = (movement: Movement | {pos: Pos, timestamp: string}): movement is Movement => {
-  return (movement as Movement).direction !== undefined;
+export interface Block {
+  pos: Pos;
+  breakable: boolean;
 }
 
+export class World {
+  private readonly battleField;  
+  private readonly BLOCK_SIZE = 32;
+  private blocks: Block[];
 
+  constructor() {
+    this.battleField = new QuadTree(new Box(0, 0, 1024, 544));
+    this.blocks = [];
+  }
+
+  createBlock(x: number, y: number): void {
+        
+  }
+
+
+}

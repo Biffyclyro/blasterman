@@ -14,7 +14,7 @@ export default class RoomManager {
     this.players = new Map();
     this.physics = new Physics(this.updateEntities); 
     this.battleField = new QuadTree(new Box(0, 0, 31, 17));
-    this.VELOCITY = 5;
+    this.VELOCITY = 0.8125;
   }
 
   addPlayers(p: Player): void {
