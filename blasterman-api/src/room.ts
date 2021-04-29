@@ -1,20 +1,19 @@
 import {Physics, Action} from './universe';
-import {QuadTree, Box, Point, Circle} from 'js-quadtree';
-import {Player, PlayerCommand, Dinamite, Pos, Movement} from './entities';
+import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
 
 export default class RoomManager {
   private players: Map<string, Player>;
   private readonly physics: Physics;
-  private readonly battleField: QuadTree;
+  private readonly world: World;
   private readonly VELOCITY: number;
-    
+
 
   constructor() {
     this.players = new Map();
     this.physics = new Physics(this.updateEntities); 
-    this.battleField = new QuadTree(new Box(0, 0, 31, 17));
-    this.VELOCITY = 0.8125;
+    this.world = new World();
+    this.VELOCITY = 2.6;
   }
 
   addPlayers(p: Player): void {
@@ -27,93 +26,54 @@ export default class RoomManager {
       }
       p.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
-      
+
     }
   }
- 
+
   addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
       p.moves!.push((command as Movement));
       p.emit('move_switch');
-      
+
     }
   }
 
-  findEntity(x:number, 
-             y:number, 
-             width: number = 1, 
-             height: number = 1): boolean {
-
-    return this.battleField
-                 .query(new Box(x, y, width, height)) === undefined;
-  }
-
-  setBomb({pos, timestamp}: {pos: Pos, timestamp: string}): void {
-    let dinamite: Dinamite | null;
-
-    setTimeout(() => {
-      if (!this.findEntity(pos[0], pos[1])) {
-        dinamite = new Dinamite(pos, timestamp);
-
-        this.battleField.insert(new Point(pos[0], pos[1], dinamite));
-
-        dinamite.on('explode', (d: Dinamite) => {
-          if (d === dinamite ){ 
-            dinamite = null
-          }
-        });
-
-      }
-    }, 40);
+  setBomb({x, y, timestamp}: Stampable): void {
+    this.world.setDinamite(x,y,timestamp);
   }
 
   async movePlayers(p: Player): Promise<void> {
-    
+
     if(p.moves && p.stats) {
-        const move = p.moves[0];
-        const pos = p.stats.pos;
-        this.battleField.remove(new Point(pos[0],pos[1]));
+      const move = p.moves[0];
+      const x = p.stats.x;
+      const y = p.stats.y;
 
-        switch(move.direction) {
-          case 1:
-            if (!this.findEntity(pos[0] + 1, pos[1])){
-              p.stats.pos[0] += this.VELOCITY;
-            }
-            break;
-          case 2:
-            if (!this.findEntity(pos[0] - 1, pos[1])){
-              p.stats.pos[0] -= this.VELOCITY;
-            }
-            break;
-          case 3:
-            if (!this.findEntity(pos[0] , pos[1] + 1)){
-              p.stats.pos[1] += this.VELOCITY;
-            }
-            break;
-          case 4:
-            if (!this.findEntity(pos[0], pos[1] - 1)){
-              p.stats.pos[1] -= this.VELOCITY;
-            }
-            break;
-        }
-
-        this.battleField.insert(new Point(pos[0], pos[1]));
+      switch(move.direction) {
+        case 1:
+          if (!this.world.checkCollision({x:x + 1, y:y})){
+            p.stats.x += this.VELOCITY;
+          }
+          break;
+        case 2:
+          if (!this.world.checkCollision({x:x - 1, y:y})){
+            p.stats.x -= this.VELOCITY;
+          }
+          break;
+        case 3:
+          if (!this.world.checkCollision({x:x, y:y + 1})){
+            p.stats.y += this.VELOCITY;
+          }
+          break;
+        case 4:
+          if (!this.world.checkCollision({x:x, y:y - 1})){
+            p.stats.y -= this.VELOCITY;
+          }
+          break;
       }
-  }
-
-  addEntity(x: number, y: number, data?: object): void {
-    if(!this.findEntity(x,y)){
-      this.battleField.insert(new Point(x, y, data));
     }
   }
-
-  removeEntity(x: number, y: number): void {
-    if(this.findEntity(x,y)){
-      this.battleField.remove(new Point(x, y));
-    }
-  }
-
   async updateEntities(): Promise<void> { 
 
     this.players.forEach( (p: Player) => {

@@ -3,12 +3,10 @@ export class Physics {
   private readonly TICK_RATE: number = 16.6;
   private loop: ReturnType<typeof setTimeout>; 
 
-
   constructor(...p: Action[]) { 
     this.periodicFunctions = p;
     this.loop = setInterval(this.updateWorld, this.TICK_RATE);
   }
-
 
   updateWorld(): void {
     this.periodicFunctions.forEach( f => f());   
@@ -23,4 +21,3 @@ export class Physics {
 export interface Action{
   (): Promise<void>;
 }
-
