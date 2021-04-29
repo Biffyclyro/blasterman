@@ -10,6 +10,12 @@ export enum Direction {
   Left,
 }
 
+export type Stampable  = {timestamp: string;} & Entity;
+
+export type Status = {alive: boolean;} & Entity;
+
+export type Block = {breakable: boolean;} & Entity;
+
 export interface Entity {
   x:number;
   y:number;
@@ -17,22 +23,10 @@ export interface Entity {
   height?:number;
 }
 
-export interface Block extends Entity{
-  breakable: boolean;
-}
-
 export interface Movement {
   timestamp: string;
   moving: boolean;
   direction: Direction;
-}
-
-export interface Stampable extends Entity{
-  timestamp: string;
-}
-
-export interface Status extends Entity{
-  alive: boolean;
 }
 
 export interface PlayerCommand {
@@ -53,9 +47,7 @@ export class Dinamite  extends EventEmitter implements Entity{
   readonly x: number;
   readonly y: number;
   
-  constructor(x: number, 
-              y: number,
-              private timestamp: string) {
+  constructor(x: number,y: number) {
     super();
     this.x = x;
     this.y = y;
@@ -95,11 +87,11 @@ export class World {
     if(block && (block as Block).breakable) { this.battleField.remove(block) }
   }
 
-  setDinamite(x: number, y:number, timestamp: string): void {
+  setDinamite(x: number, y:number, latency: number): void {
     if (!this.battleField.colliding({x:x, y:y})) {
       let dinamite: Dinamite | null;
       setTimeout(() => {
-        dinamite = new Dinamite(x, y, timestamp);
+        dinamite = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
           if (d === dinamite ){ 
             dinamite = null
@@ -107,19 +99,15 @@ export class World {
         });
 
         this.battleField.push(dinamite);
-      }, 40);
-
+      }, latency);
     }
   }
 
   isBlock(block: Block | Entity): block is Block {
     return (block as Block).breakable !== undefined;
   }
-
 }
 
 export const isMovement = (movement: Movement | Stampable): movement is Movement => {
   return (movement as Movement).direction !== undefined;
 }
-
-

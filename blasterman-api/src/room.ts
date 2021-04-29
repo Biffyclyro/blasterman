@@ -7,7 +7,7 @@ export default class RoomManager {
   private readonly physics: Physics;
   private readonly world: World;
   private readonly VELOCITY: number;
-
+  private readonly serverTime = new Date();
 
   constructor() {
     this.players = new Map();
@@ -19,28 +19,36 @@ export default class RoomManager {
   addPlayers(p: Player): void {
     if (!this.players.has(p.playerId) ) {
       p.moves = [];
-      p.moveSwitch = async (time: number) => {
+      p.moveSwitch = async (latency: number) => {
         if (p.moves) {
-          setTimeout( p.moves.pop, time);
+          setTimeout( p.moves.pop, latency);
         }
       }
       p.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
-
     }
   }
 
   addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
-      p.moves!.push((command as Movement));
-      p.emit('move_switch');
+      const movement = (command as Movement);
+      p.moves!.push(movement);
+      const ms = this.latencyCalculator(movement.timestamp);
+
+      p.emit('move_switch', ms);
 
     }
   }
 
   setBomb({x, y, timestamp}: Stampable): void {
-    this.world.setDinamite(x,y,timestamp);
+    const ms = this.latencyCalculator(timestamp);
+    this.world.setDinamite(x,y, ms);
+  }
+
+  latencyCalculator(timestamp: string): number {
+    const clientTime = new Date(timestamp); 
+    return this.serverTime.getTime() - clientTime.getTime(); 
   }
 
   async movePlayers(p: Player): Promise<void> {
