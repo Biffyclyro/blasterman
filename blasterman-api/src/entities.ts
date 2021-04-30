@@ -42,8 +42,8 @@ export interface Player extends EventEmitter{
 }
 
 export class Dinamite  extends EventEmitter implements Entity{
-  readonly width: number;
-  readonly height: number;
+  readonly width = 24;
+  readonly height = 24;
   readonly x: number;
   readonly y: number;
   
@@ -51,8 +51,6 @@ export class Dinamite  extends EventEmitter implements Entity{
     super();
     this.x = x;
     this.y = y;
-    this.width = 24;
-    this.height = 24;
     setTimeout( this.explode, 3000);
   }
 
@@ -62,12 +60,8 @@ export class Dinamite  extends EventEmitter implements Entity{
 }
 
 export class World {
-  private readonly battleField: Quadtree<Entity>;  
+  private readonly battleField: Quadtree<Entity> = new Quadtree({width:1024, height:544});
   private readonly BLOCK_SIZE = 32;
-
-  constructor() {
-    this.battleField = new Quadtree({width:1024, height:544});
-  }
 
   createBlock(block: Block): void {
     block.width = this.BLOCK_SIZE;
@@ -89,9 +83,8 @@ export class World {
 
   setDinamite(x: number, y:number, latency: number): void {
     if (!this.battleField.colliding({x:x, y:y})) {
-      let dinamite: Dinamite | null;
       setTimeout(() => {
-        dinamite = new Dinamite(x, y);
+        let dinamite: Dinamite | null = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
           if (d === dinamite ){ 
             dinamite = null

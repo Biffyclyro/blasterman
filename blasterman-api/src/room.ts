@@ -3,18 +3,12 @@ import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
 
 export default class RoomManager {
-  private players: Map<string, Player>;
-  private readonly physics: Physics;
-  private readonly world: World;
-  private readonly VELOCITY: number;
+  private players: Map<string, Player> = new Map();
+  private readonly physicso = new Physics(this.updateEntities);  
+  private readonly world = new World();
+  private readonly VELOCITY= 2.6;
   private readonly serverTime = new Date();
 
-  constructor() {
-    this.players = new Map();
-    this.physics = new Physics(this.updateEntities); 
-    this.world = new World();
-    this.VELOCITY = 2.6;
-  }
 
   addPlayers(p: Player): void {
     if (!this.players.has(p.playerId) ) {
