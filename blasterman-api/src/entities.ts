@@ -12,7 +12,7 @@ export enum Direction {
 
 export type Stampable  = {timestamp: string;} & Entity;
 
-export type Status = {alive: boolean;} & Entity;
+export type Status = {alive: boolean;} & Stampable;
 
 export type Block = {breakable: boolean;} & Entity;
 
@@ -36,7 +36,7 @@ export interface PlayerCommand {
 
 export interface Player extends EventEmitter{
   playerId: string;
-  stats?: Status;
+  stats: Status;
   moves?: Movement[];
   moveSwitch?: (time: number) => Promise<void>; 
 }
@@ -101,6 +101,7 @@ export class World {
   }
 }
 
-export const isMovement = (movement: Movement | Stampable): movement is Movement => {
+export const isMovement = (movement: Movement 
+                          | Stampable): movement is Movement => {
   return (movement as Movement).direction !== undefined;
 }

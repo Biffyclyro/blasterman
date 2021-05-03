@@ -17,7 +17,7 @@ export const rooms = new Map<string, RoomManager>();
 
 app.use(express.json());
 const corsOptions = {
-    origin: '*',
+  origin: '*',
 }
 
 
@@ -36,41 +36,45 @@ const io = new socketIO.Server(server, {
 });
 
 io.on("connection", socket => {
-    socket.on('enter_room', ( enterRequest: ObjectDto<Player>) => {
-      
-      let roomId = enterRequest.info;
-      if (!roomId) {
-        roomId = '1';
+  socket.on('enter_room', ( enterRequest: ObjectDto<Player>) => {
+
+    let roomId = enterRequest.info;
+    if (!roomId) {
+      roomId = '1';
+    }
+    const room = rooms.get(roomId);
+    const player: Player | undefined = enterRequest.data;
+
+    if(player) {
+
+      if(!room) {
+        rooms.set(roomId, new RoomManager());
       }
-      const room = rooms.get(roomId);
-      const player: Player | undefined = enterRequest.data;
+      socket.join(roomId);
+      room!.addPlayers(player);
+      console.log(`conecatado na sala ${roomId}`);
+    }
+  });
 
-      if(player) {
+  socket.on('command', (commandRequest: ObjectDto<PlayerCommand>) => {
+    const roomId: string | undefined = commandRequest.info;
+    const playerCommand: PlayerCommand | undefined = commandRequest.data;
+    let room: RoomManager | undefined ;
 
-        if(!room) {
-          rooms.set(roomId, new RoomManager());
-        }
-        socket.join(roomId);
-        room!.addPlayers(player);
-        console.log(`conecatado na sala ${roomId}`);
-      }
-    });
+    if (roomId) {
+      room = rooms.get(roomId);
+    }
 
-    socket.on('command', (commandRequest: ObjectDto<PlayerCommand>) => {
-      const roomId: string | undefined = commandRequest.info;
-      const playerCommand: PlayerCommand | undefined = commandRequest.data;
-      let room: RoomManager | undefined ;
-
-      if (roomId) {
-        room = rooms.get(roomId);
-      }
-
-      if (room && playerCommand){
+    if (room && playerCommand){
+      const id = playerCommand.playerId;
+      const player = room.getPlayer(id);
+      if (player) {
         if (isMovement(playerCommand.command)) {
           room.addMove(playerCommand); 
         } else {
-          room.setBomb(playerCommand.command);
+          room.setBomb(playerCommand.command, player);
         }
       }
-    });
+    }
+  });
 });
