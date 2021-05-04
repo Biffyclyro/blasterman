@@ -51,7 +51,7 @@ io.on("connection", socket => {
         rooms.set(roomId, new RoomManager());
       }
       socket.join(roomId);
-      room!.addPlayers(player);
+      room!.addPlayer(player);
       console.log(`conecatado na sala ${roomId}`);
     }
   });

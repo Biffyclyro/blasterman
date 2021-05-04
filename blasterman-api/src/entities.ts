@@ -34,9 +34,10 @@ export interface PlayerCommand {
   command: Movement | Stampable;
 }
 
-export interface Player extends EventEmitter{
+export interface Player {
   playerId: string;
   stats: Status;
+  emitter?: EventEmitter;
   moves?: Movement[];
   moveSwitch?: (time: number) => Promise<void>; 
 }

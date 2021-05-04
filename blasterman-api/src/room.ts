@@ -1,3 +1,4 @@
+import EventEmitter from 'events';
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
@@ -10,31 +11,37 @@ export default class RoomManager {
   private readonly serverTime = new Date();
 
 
-  addPlayers(p: Player): void {
+  addPlayer(p: Player): void {
     if (!this.players.has(p.playerId) ) {
       p.moves = [];
+      p.moves.push({
+        timestamp: p.stats.timestamp, 
+        moving: false,
+        direction: 1
+      });
+      p.emitter = new EventEmitter();
       p.moveSwitch = async (latency: number) => {
         if (p.moves) {
           p.stats!.timestamp = this.serverTime.toISOString();
           setTimeout( p.moves.pop, latency);
         }
       }
-      p.on('move_switch', p.moveSwitch); 
+      p.emitter.on('move_switch', p.moveSwitch); 
       this.players.set(p.playerId, p); 
     }
   }
-  
+
   getPlayer(playerId: string): Player | undefined {
     return this.players.get(playerId); 
   }
-  
-   addMove({playerId, command}: PlayerCommand): void {
+
+  addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
       const movement = (command as Movement);
       const ms = this.latencyCalculator(movement.timestamp, p);
       p.moves!.push(movement);
-      p.emit('move_switch', ms);
+      p.emitter!.emit('move_switch', ms);
       this.broadCastUpdates({playerId: playerId, command: command});
     }
   }
@@ -55,7 +62,7 @@ export default class RoomManager {
     return latency >= 0 ? latency : 0;
   }
 
-  async movePlayers(p: Player): Promise<void> {
+  private async movePlayer(p: Player): Promise<void> {
 
     if(p.moves && p.stats) {
       const move = p.moves[0];
@@ -86,13 +93,13 @@ export default class RoomManager {
       }
     }
   }
-  async updateEntities(): Promise<void> { 
+  private async updateEntities(): Promise<void> { 
     this.players.forEach( (p: Player) => {
-      this.movePlayers(p);
+      this.movePlayer(p);
     });
   }
 
   broadCastUpdates(pc: PlayerCommand): void {
-    
+
   }
 }
