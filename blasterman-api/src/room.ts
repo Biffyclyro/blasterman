@@ -31,7 +31,7 @@ export default class RoomManager {
     }
   }
 
-  getPlayer(playerId: string): Player | undefined {
+    getPlayer(playerId: string): Player | undefined {
     return this.players.get(playerId); 
   }
 
