@@ -5,7 +5,7 @@ import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
 export default class RoomManager {
   private players: Map<string, Player> = new Map();
-  private readonly physicso = new Physics(this.updateEntities);  
+  private readonly physicso = new Physics(this.updateEntities.bind(this));  
   private readonly world = new World();
   private readonly VELOCITY = 2.6;
   private readonly serverTime = new Date();
@@ -31,7 +31,7 @@ export default class RoomManager {
     }
   }
 
-    getPlayer(playerId: string): Player | undefined {
+  getPlayer(playerId: string): Player | undefined {
     return this.players.get(playerId); 
   }
 
@@ -58,7 +58,6 @@ export default class RoomManager {
     const clientTimeElapsed = first.getTime() - last.getTime(); 
     const serverTimeElapsed = this.serverTime.getTime() - new Date(p.stats.timestamp).getTime();
     const latency = clientTimeElapsed - serverTimeElapsed;
-
     return latency >= 0 ? latency : 0;
   }
 
@@ -68,28 +67,29 @@ export default class RoomManager {
       const move = p.moves[0];
       const x = p.stats.x;
       const y = p.stats.y;
-
-      switch(move.direction) {
-        case 1:
-          if (!this.world.checkCollision({x:x + 1, y:y})){
-            p.stats.x += this.VELOCITY;
-          }
-          break;
-        case 2:
-          if (!this.world.checkCollision({x:x - 1, y:y})){
-            p.stats.x -= this.VELOCITY;
-          }
-          break;
-        case 3:
-          if (!this.world.checkCollision({x:x, y:y + 1})){
-            p.stats.y += this.VELOCITY;
-          }
-          break;
-        case 4:
-          if (!this.world.checkCollision({x:x, y:y - 1})){
-            p.stats.y -= this.VELOCITY;
-          }
-          break;
+      if(move.moving){
+        switch(move.direction) {
+          case 1:
+            if (!this.world.checkCollision({x:x + 1, y:y})){
+              p.stats.x += this.VELOCITY;
+            }
+            break;
+          case 2:
+            if (!this.world.checkCollision({x:x - 1, y:y})){
+              p.stats.x -= this.VELOCITY;
+            }
+            break;
+          case 3:
+            if (!this.world.checkCollision({x:x, y:y + 1})){
+              p.stats.y += this.VELOCITY;
+            }
+            break;
+          case 4:
+            if (!this.world.checkCollision({x:x, y:y - 1})){
+              p.stats.y -= this.VELOCITY;
+            }
+            break;
+        }
       }
     }
   }

@@ -71,7 +71,7 @@ export class World {
   }
 
   checkCollision(entity: Entity): boolean {
-    return this.battleField.colliding(entity) ? true : false;
+    return this.battleField.colliding(entity).pop() ? true : false;
   }
 
   destroyBlock({x, y}:{x:number, y:number}):void {
