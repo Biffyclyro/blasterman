@@ -2,7 +2,6 @@ import EventEmitter from 'events';
 import RoomManager from './room';
 import Quadtree from 'quadtree-lib';
 
-
 export enum Direction {
   Up = 1,
   Down,
@@ -47,11 +46,13 @@ export class Dinamite  extends EventEmitter implements Entity{
   readonly height = 24;
   readonly x: number;
   readonly y: number;
+  size: number;
   
-  constructor(x: number,y: number) {
+  constructor(x: number,y: number, size: number = 2) {
     super();
     this.x = x;
     this.y = y;
+    this.size = size;
     setTimeout( this.explode, 3000);
   }
 
@@ -60,7 +61,7 @@ export class Dinamite  extends EventEmitter implements Entity{
   }
 }
 
-export class World {
+export class World extends EventEmitter {
   private readonly battleField: Quadtree<Entity> = new Quadtree({width:1024, height:544});
   private readonly BLOCK_SIZE = 32;
 
@@ -74,7 +75,7 @@ export class World {
     return this.battleField.colliding(entity).pop() ? true : false;
   }
 
-  destroyBlock({x, y}:{x:number, y:number}):void {
+  destroyBlock({x, y}:Entity):void {
     const block = this.battleField.find((block) => {
       return block.x === x && block.y === y && this.isBlock(block);
     }).pop();
@@ -83,7 +84,7 @@ export class World {
   }
 
   setDinamite(x: number, y:number, latency: number): void {
-    if (!this.battleField.colliding({x:x, y:y})) {
+    if (!this.checkCollision({x:x, y:y})) {
       setTimeout(() => {
         let dinamite: Dinamite | null = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
@@ -97,9 +98,38 @@ export class World {
     }
   }
 
+  explode(d: Entity): void{
+    this.createExplosion(d);
+  }
+
+  createExplosion(e: Entity): void {
+    const explosion = {
+      x: e.x,
+      y: e.y,
+      width: 32,
+      height: 32,
+      elementType: 'explosion'
+    }
+    if(!this.checkCollision(explosion)) {
+      this.battleField.push(explosion);
+    } else {
+      const element = this.battleField.colliding(explosion).pop();
+      if( element && this.isBlock(element)) {
+        if(element.breakable) {
+          this.battleField.remove(element);    
+        } 
+      }
+    }
+  }
+
   isBlock(block: Block | Entity): block is Block {
     return (block as Block).breakable !== undefined;
   }
+  
+  touchExplosion(entity: Entity): boolean {
+    return false; 
+  }
+
 }
 
 export const isMovement = (movement: Movement 
