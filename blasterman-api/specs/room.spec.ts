@@ -93,4 +93,9 @@ describe('RoomTester', () => {
 
     expect(movedPlayer!.stats.x !== player.stats.x);
   });
+
+  afterAll(() => {
+    //@ts-ignore
+    room.physics.destroyInterval();
+  });
 });

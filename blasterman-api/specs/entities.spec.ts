@@ -30,6 +30,13 @@ describe('EntitiesTester', () => {
     expect(resp).toBeTruthy();
   });
 
+    it('should create dinamite', () => {
+    world.setDinamite(52,52, 0);
+    const resp = world.checkCollision({x:52, y:52});
+
+    expect(!resp).toBeTruthy();
+  });
+
   it('should destroy block', () => {
     const block: Block = {
       x: 48,
@@ -38,14 +45,7 @@ describe('EntitiesTester', () => {
     }
     world.createBlock(block);
     world.destroyBlock({x:48, y:48});
-    const resp = world.checkCollision({x:48, y:48, width: 32, height:32});
-
-    expect(!resp).toBeTruthy();
-  });
-
-  it('should create dinamite', () => {
-    world.setDinamite(52,52, 0);
-    const resp = world.checkCollision({x:52, y:52});
+    const resp = world.checkCollision({x:48, y:48});
 
     expect(!resp).toBeTruthy();
   });

@@ -75,7 +75,7 @@ export class World extends EventEmitter {
     return this.battleField.colliding(entity).pop() ? true : false;
   }
 
-  destroyBlock({x, y}:Entity):void {
+  destroyBlock({x, y}:Entity): void {
     const block = this.battleField.find((block) => {
       return block.x === x && block.y === y && this.isBlock(block);
     }).pop();
@@ -98,11 +98,33 @@ export class World extends EventEmitter {
     }
   }
 
-  explode(d: Entity): void{
+  explode(d: Dinamite): void{
+    const sectionSize = 32;
+    const explosionSection = {
+      up: true,
+      right: true,
+      down: true,
+      left: true,
+    }
     this.createExplosion(d);
+    for(let i = 0; i < d.size; i++) {
+      if(explosionSection.up) {
+        explosionSection.up = this.createExplosion({x: d.x, y: d.y + 32});
+      }
+      if(explosionSection.right) {
+        explosionSection.right = this.createExplosion({x: d.x + 32, y: d.y});
+      }
+      if(explosionSection.down) {
+        explosionSection.down = this.createExplosion({x: d.x, y: d.y - 32});
+      }
+      if(explosionSection.left) {
+        explosionSection.left = this.createExplosion({x: d.x - 32, y: d.y});
+      }
+    }
+
   }
 
-  createExplosion(e: Entity): void {
+  createExplosion(e: Entity): boolean{
     const explosion = {
       x: e.x,
       y: e.y,
@@ -112,6 +134,8 @@ export class World extends EventEmitter {
     }
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
+      setTimeout(this.battleField.remove, 1000, explosion);
+      return true;
     } else {
       const element = this.battleField.colliding(explosion).pop();
       if( element && this.isBlock(element)) {
@@ -119,6 +143,7 @@ export class World extends EventEmitter {
           this.battleField.remove(element);    
         } 
       }
+      return false;
     }
   }
 

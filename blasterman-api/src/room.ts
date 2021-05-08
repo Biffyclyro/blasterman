@@ -5,7 +5,7 @@ import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
 export default class RoomManager {
   private players: Map<string, Player> = new Map();
-  private readonly physicso = new Physics(this.updateEntities.bind(this));  
+  private readonly physics = new Physics(this.updateEntities.bind(this));  
   private readonly world = new World();
   private readonly VELOCITY = 2.6;
   private readonly serverTime = new Date();
