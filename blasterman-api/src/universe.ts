@@ -5,7 +5,7 @@ export class Physics {
 
   constructor(...p: Action[]) { 
     this.periodicFunctions.push(...p);
-    this.loop = setInterval(this.updateWorld, this.TICK_RATE);
+    this.loop = setInterval(this.updateWorld.bind(this), this.TICK_RATE);
   }
 
   updateWorld(): void {

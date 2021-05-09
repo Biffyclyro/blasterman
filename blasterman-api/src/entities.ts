@@ -15,6 +15,8 @@ export type Status = {alive: boolean;} & Stampable;
 
 export type Block = {breakable: boolean;} & Entity;
 
+type Explosion = {elementType: string;} & Entity;
+
 export interface Entity {
   x:number;
   y:number;
@@ -53,7 +55,7 @@ export class Dinamite  extends EventEmitter implements Entity{
     this.x = x;
     this.y = y;
     this.size = size;
-    setTimeout( this.explode, 3000);
+    setTimeout( this.explode.bind(this), 3000);
   }
 
   explode(): void {
@@ -99,7 +101,7 @@ export class World extends EventEmitter {
   }
 
   explode(d: Dinamite): void{
-    const sectionSize = 32;
+    let sectionSize = 0;
     const explosionSection = {
       up: true,
       right: true,
@@ -108,20 +110,20 @@ export class World extends EventEmitter {
     }
     this.createExplosion(d);
     for(let i = 0; i < d.size; i++) {
+      sectionSize += 32;
       if(explosionSection.up) {
-        explosionSection.up = this.createExplosion({x: d.x, y: d.y + 32});
+        explosionSection.up = this.createExplosion({x: d.x, y: d.y + sectionSize});
       }
       if(explosionSection.right) {
-        explosionSection.right = this.createExplosion({x: d.x + 32, y: d.y});
+        explosionSection.right = this.createExplosion({x: d.x + sectionSize, y: d.y});
       }
       if(explosionSection.down) {
-        explosionSection.down = this.createExplosion({x: d.x, y: d.y - 32});
+        explosionSection.down = this.createExplosion({x: d.x, y: d.y - sectionSize});
       }
       if(explosionSection.left) {
-        explosionSection.left = this.createExplosion({x: d.x - 32, y: d.y});
+        explosionSection.left = this.createExplosion({x: d.x - sectionSize, y: d.y});
       }
     }
-
   }
 
   createExplosion(e: Entity): boolean{
@@ -134,7 +136,7 @@ export class World extends EventEmitter {
     }
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
-      setTimeout(this.battleField.remove, 1000, explosion);
+      setTimeout(this.battleField.remove.bind(this), 1000, explosion);
       return true;
     } else {
       const element = this.battleField.colliding(explosion).pop();
@@ -152,9 +154,11 @@ export class World extends EventEmitter {
   }
   
   touchExplosion(entity: Entity): boolean {
-    return false; 
+    const possibleExplosion = this.battleField.colliding(entity).pop();
+    if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
+      return true
+    }else { return false}
   }
-
 }
 
 export const isMovement = (movement: Movement 
