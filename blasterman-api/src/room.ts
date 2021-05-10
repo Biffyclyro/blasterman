@@ -1,4 +1,5 @@
 import EventEmitter from 'events';
+import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
 
@@ -9,7 +10,13 @@ export default class RoomManager {
   private readonly world = new World();
   private readonly VELOCITY = 2.6;
   private readonly serverTime = new Date();
+  private readonly serverSocket: Server;
+  private readonly roomId: string;
 
+  constructor(io: Server, roomId: string){
+    this.serverSocket = io;
+    this.roomId = roomId;
+  }
 
   addPlayer(p: Player): void {
     if (!this.players.has(p.playerId) ) {
@@ -94,12 +101,12 @@ export default class RoomManager {
     }
   }
   private async updateEntities(): Promise<void> { 
-    this.players.forEach( (p: Player) => {
+    this.players.forEach((p: Player) => {
       this.movePlayer(p);
     });
   }
 
   broadCastUpdates(pc: PlayerCommand): void {
-
+    this.serverSocket.to(this.roomId).emit('command', {data: pc})
   }
 }

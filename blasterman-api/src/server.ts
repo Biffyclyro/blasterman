@@ -5,7 +5,6 @@ import RoomManager from './room';
 import router from './utils/controllers';
 import {Player, PlayerCommand, Movement, isMovement} from './entities';
 
-
 export interface ObjectDto<T> {
   info?: string;
   data?: T;
@@ -20,12 +19,9 @@ const corsOptions = {
   origin: '*',
 }
 
-
 app.use(cors());
 app.use('/', router);
 const server = app.listen(port);
-
-
 
 const io = new socketIO.Server(server, {
   path: '/teste',
@@ -40,7 +36,7 @@ io.on("connection", socket => {
 
     let roomId = enterRequest.info;
     if (!roomId) {
-      roomId = '1';
+      roomId = `room-${idGenerator()}`;
     }
     const room = rooms.get(roomId);
     const player: Player | undefined = enterRequest.data;
@@ -48,7 +44,8 @@ io.on("connection", socket => {
     if(player) {
 
       if(!room) {
-        rooms.set(roomId, new RoomManager());
+        const r = new RoomManager(io, roomId);
+        rooms.set(roomId, r);
       }
       socket.join(roomId);
       room!.addPlayer(player);

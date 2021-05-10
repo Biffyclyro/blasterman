@@ -1,6 +1,10 @@
 import RoomManager from '../src/room'
 import {Player, Movement, World, PlayerCommand} from '../src/entities';
 import EventEmitter from 'events';
+import {Server} from "socket.io";
+import socketIO from "socket.io";
+import express from "express";
+
 
 describe('RoomTester', () => {
   let room: RoomManager;
@@ -11,6 +15,10 @@ describe('RoomTester', () => {
   let movement: PlayerCommand;
   
   beforeAll(() => {
+
+    const app = express();
+    const server = app.listen();
+    const io = new socketIO.Server(server);
     time = new Date();
     player = {
       playerId: 'test',
@@ -34,8 +42,8 @@ describe('RoomTester', () => {
       playerId: 'test', 
       command: com 
     }
-
-    room = new RoomManager();
+    
+    room = new RoomManager(io, 'test');
     room.addPlayer(player);
   });
 

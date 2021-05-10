@@ -92,6 +92,7 @@ export class World extends EventEmitter {
         dinamite.on('explode', (d: Dinamite) => {
           if (d === dinamite ){ 
             dinamite = null
+            this.explode(d);
           }
         });
 
@@ -101,6 +102,7 @@ export class World extends EventEmitter {
   }
 
   explode(d: Dinamite): void{
+    this.battleField.remove(d);
     let sectionSize = 0;
     const explosionSection = {
       up: true,
