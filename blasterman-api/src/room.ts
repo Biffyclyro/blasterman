@@ -1,21 +1,22 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World} from './entities';
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap} from './entities';
 
 
 export default class RoomManager {
   private players: Map<string, Player> = new Map();
+  private readonly world: World;
   private readonly physics = new Physics(this.updateEntities.bind(this));  
-  private readonly world = new World();
   private readonly VELOCITY = 2.6;
   private readonly serverTime = new Date();
   private readonly serverSocket: Server;
   private readonly roomId: string;
 
-  constructor(io: Server, roomId: string){
+  constructor(io: Server, roomId: string, bm: BattlefieldMap){
     this.serverSocket = io;
     this.roomId = roomId;
+    this.world = new World(bm);
   }
 
   addPlayer(p: Player): void {
@@ -49,14 +50,14 @@ export default class RoomManager {
       const ms = this.latencyCalculator(movement.timestamp, p);
       p.moves!.push(movement);
       p.emitter!.emit('move_switch', ms);
-      this.broadCastUpdates({playerId: playerId, command: command});
+      this.broadcastUpdates({playerId: playerId, command: command});
     }
   }
 
   setBomb(bomb: Stampable, p: Player): void {
     const ms = this.latencyCalculator(bomb.timestamp, p);
     this.world.setDinamite(bomb.x,bomb.y, ms);
-    this.broadCastUpdates({playerId: p.playerId, command: bomb});
+    this.broadcastUpdates({playerId: p.playerId, command: bomb});
   }
 
   private latencyCalculator(t1: string, p: Player ): number {
@@ -106,7 +107,7 @@ export default class RoomManager {
     });
   }
 
-  broadCastUpdates(pc: PlayerCommand): void {
+  broadcastUpdates(pc: PlayerCommand): void {
     this.serverSocket.to(this.roomId).emit('command', {data: pc})
   }
 }

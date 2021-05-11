@@ -1,9 +1,7 @@
 import RoomManager from '../src/room'
 import {Player, Movement, World, PlayerCommand} from '../src/entities';
 import EventEmitter from 'events';
-import {Server} from "socket.io";
-import socketIO from "socket.io";
-import express from "express";
+import {battleFieldMap} from '../src/utils/engines';
 
 
 describe('RoomTester', () => {
@@ -15,10 +13,6 @@ describe('RoomTester', () => {
   let movement: PlayerCommand;
   
   beforeAll(() => {
-
-    const app = express();
-    const server = app.listen();
-    const io = new socketIO.Server(server);
     time = new Date();
     player = {
       playerId: 'test',
@@ -43,7 +37,9 @@ describe('RoomTester', () => {
       command: com 
     }
     
-    room = new RoomManager(io, 'test');
+    //@ts-ignore
+    room = new RoomManager(null, 'test', battleFieldMap);
+    spyOn(room, 'broadcastUpdates');
     room.addPlayer(player);
   });
 

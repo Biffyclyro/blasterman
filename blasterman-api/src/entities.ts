@@ -13,7 +13,7 @@ export type Stampable  = {timestamp: string;} & Entity;
 
 export type Status = {alive: boolean;} & Stampable;
 
-export type Block = {breakable: boolean;} & Entity;
+export type Block = {breakable?: boolean;} & Entity;
 
 type Explosion = {elementType: string;} & Entity;
 
@@ -43,6 +43,12 @@ export interface Player {
   moveSwitch?: (time: number) => Promise<void>; 
 }
 
+export interface BattlefieldMap {
+  tiles: string;
+  breakableBlocks: Entity[];
+  background: {key: string, url: string};
+}
+
 export class Dinamite  extends EventEmitter implements Entity{
   readonly width = 24;
   readonly height = 24;
@@ -66,6 +72,11 @@ export class Dinamite  extends EventEmitter implements Entity{
 export class World extends EventEmitter {
   private readonly battleField: Quadtree<Entity> = new Quadtree({width:1024, height:544});
   private readonly BLOCK_SIZE = 32;
+
+  constructor(bm: BattlefieldMap) {
+    super();
+    this.buildMap(bm);
+  }
 
   createBlock(block: Block): void {
     block.width = this.BLOCK_SIZE;
@@ -149,6 +160,21 @@ export class World extends EventEmitter {
       }
       return false;
     }
+  }
+
+  private buildMap(bm: BattlefieldMap): void {
+    for(let i = 0; i< 31; i++) {
+      if(i % 2 === 0) {
+        for(let j = 2; j <= 16; j += 2) {
+          this.createBlock({x: i * this.BLOCK_SIZE ,y: j * this.BLOCK_SIZE, breakable: false});
+        }
+      } 
+    }
+
+    bm.breakableBlocks.forEach((b: Block) => {
+      b.breakable = true;
+      this.createBlock(b);
+    });
   }
 
   isBlock(block: Block | Entity): block is Block {

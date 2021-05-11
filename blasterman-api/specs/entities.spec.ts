@@ -1,4 +1,5 @@
 import {World, Dinamite, Block} from '../src/entities';
+import {battleFieldMap} from '../src/utils/engines';
 
 
 describe('EntitiesTester', () => {
@@ -6,7 +7,7 @@ describe('EntitiesTester', () => {
   let dinamite: Dinamite;
 
   beforeAll(() => {
-    world = new World();
+    world = new World(battleFieldMap);
   });
 
   it('should create world', () => {
@@ -39,13 +40,13 @@ describe('EntitiesTester', () => {
 
   it('should destroy block', () => {
     const block: Block = {
-      x: 48,
-      y: 48,
+      x: 0,
+      y: 0,
       breakable: true
     }
     world.createBlock(block);
-    world.destroyBlock({x:48, y:48});
-    const resp = world.checkCollision({x:48, y:48});
+    world.destroyBlock({x:0, y:0});
+    const resp = world.checkCollision({x:0, y:0});
 
     expect(!resp).toBeTruthy();
   });

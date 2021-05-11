@@ -22,3 +22,5 @@ router.get('/rooms-list', async (req: express.Request,
 });
 
 export default router;
+
+

@@ -1,9 +1,11 @@
-import socketIO from "socket.io";
-import express from "express";
 import cors from "cors";
+import express from "express";
 import RoomManager from './room';
+import socketIO from "socket.io";
 import router from './utils/controllers';
+import {idGenerator, battleFieldMap} from './utils/engines';
 import {Player, PlayerCommand, Movement, isMovement} from './entities';
+
 
 export interface ObjectDto<T> {
   info?: string;
@@ -21,6 +23,7 @@ const corsOptions = {
 
 app.use(cors());
 app.use('/', router);
+app.use(express.static('public'));
 const server = app.listen(port);
 
 const io = new socketIO.Server(server, {
@@ -30,6 +33,11 @@ const io = new socketIO.Server(server, {
     methods: ["GET", "POST"]
   }
 });
+
+//@ts-ignore
+io.engine.generateId = (req: any) => {
+  return idGenerator();
+}
 
 io.on("connection", socket => {
   socket.on('enter_room', ( enterRequest: ObjectDto<Player>) => {
@@ -42,14 +50,15 @@ io.on("connection", socket => {
     const player: Player | undefined = enterRequest.data;
 
     if(player) {
-
+      player.playerId = socket.id;
       if(!room) {
-        const r = new RoomManager(io, roomId);
+        const r = new RoomManager(io, roomId, battleFieldMap);
         rooms.set(roomId, r);
       }
       socket.join(roomId);
       room!.addPlayer(player);
       console.log(`conecatado na sala ${roomId}`);
+      socket.send({info: socket.id, data: battleFieldMap});
     }
   });
 
@@ -63,7 +72,8 @@ io.on("connection", socket => {
     }
 
     if (room && playerCommand){
-      const id = playerCommand.playerId;
+      const id = socket.id;
+      playerCommand.playerId = id;
       const player = room.getPlayer(id);
       if (player) {
         if (isMovement(playerCommand.command)) {
