@@ -5,6 +5,7 @@ import socketIO from "socket.io";
 import router from './utils/controllers';
 import {idGenerator, battleFieldMap} from './utils/engines';
 import {Player, PlayerCommand, Movement, isMovement} from './entities';
+import * as dotenv from 'dotenv';
 
 
 export interface ObjectDto<T> {
@@ -12,7 +13,8 @@ export interface ObjectDto<T> {
   data?: T;
 }
 
-const port = 8080;
+dotenv.config();
+const port = process.env.API_PORT;
 const app: express.Application = express();
 export const rooms = new Map<string, RoomManager>();
 
@@ -29,7 +31,7 @@ const server = app.listen(port);
 const io = new socketIO.Server(server, {
   path: '/teste',
   cors: {
-    origin: "http://localhost:8090",
+    origin: process.env.CLIENT_URL,
     methods: ["GET", "POST"]
   }
 });
