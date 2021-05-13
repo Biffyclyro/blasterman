@@ -25,7 +25,7 @@ const corsOptions = {
 
 app.use(cors());
 app.use('/', router);
-app.use(express.static('public'));
+app.use(express.static('assets'));
 const server = app.listen(port);
 
 const io = new socketIO.Server(server, {

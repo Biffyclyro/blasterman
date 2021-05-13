@@ -10,6 +10,7 @@ COPY tsconfig.json webpack.config.js jasmine.json .eslintrc.json  ./
 
 COPY src src
 COPY specs specs
+COPY assets assets 
 
 RUN npm run build
 
