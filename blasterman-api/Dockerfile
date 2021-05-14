@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:15.11.0 as BUILDER
+FROM node:15.11.0-buster-slim as BUILDER
 
 COPY package.json package-lock.json  ./
 
