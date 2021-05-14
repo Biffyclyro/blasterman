@@ -15,7 +15,7 @@ COPY assets assets
 RUN npm run build
 
 
-FROM node:15.11.0
+FROM node:15.11.0-buster-slim
 
 ENV NODE_ENV=production
 

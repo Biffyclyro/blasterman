@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap} from './entities';
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction} from './entities';
 
 
 export default class RoomManager {
@@ -35,7 +35,28 @@ export default class RoomManager {
         }
       }
       p.emitter.on('move_switch', p.moveSwitch); 
+      this.positionChooser(p);
       this.players.set(p.playerId, p); 
+      this.broadcastUpdates({
+        playerId: p.playerId, 
+        command: {
+          timestamp: this.serverTime.toISOString(),
+          moving: false,
+          direction: Direction.Down
+        }
+      });
+    }
+  }
+
+  private positionChooser(p: Player): void {
+    if (this.players.size === 0) {
+      p.stats.x = 190;
+      p.stats.y = 48;
+      p.skin = 'cop';
+    } else {
+      p.stats.x = 1148;
+      p.stats.y = 554;
+      p.skin = 'rob';
     }
   }
 

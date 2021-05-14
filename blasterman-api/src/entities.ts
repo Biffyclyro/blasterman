@@ -37,6 +37,7 @@ export interface PlayerCommand {
 
 export interface Player {
   playerId: string;
+  skin?: string;
   stats: Status;
   emitter?: EventEmitter;
   moves?: Movement[];
