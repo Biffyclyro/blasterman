@@ -39,7 +39,6 @@ export interface Player {
   playerId: string;
   skin?: string;
   stats: Status;
-  emitter?: EventEmitter;
   moves?: Movement[];
   moveSwitch?: (time: number) => Promise<void>; 
 }
@@ -115,6 +114,7 @@ export class World extends EventEmitter {
 
   explode(d: Dinamite): void{
     this.battleField.remove(d);
+    d.emit('explosion');
     let sectionSize = 0;
     const explosionSection = {
       up: true,
@@ -186,7 +186,7 @@ export class World extends EventEmitter {
     const possibleExplosion = this.battleField.colliding(entity).pop();
     if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
       return true
-    }else { return false}
+    } else { return false}
   }
 }
 

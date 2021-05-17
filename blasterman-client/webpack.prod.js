@@ -1,9 +1,11 @@
 const path = require('path');
 const ESLintPlugin = require('eslint-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  entry: './src/server.ts',
+  entry: './src/game.ts',
+  target: 'node',
   mode: 'production',
   module: {
     rules: [
@@ -18,12 +20,11 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    filename: 'game.min.js',
+    filename: 'server.min.js',
     path: path.resolve(__dirname, 'dist'),
   },
 
   plugins: [
-    new HtmlWebpackPlugin(),
     new ESLintPlugin(),
     new CopyPlugin({
       patterns: [

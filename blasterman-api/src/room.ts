@@ -7,6 +7,7 @@ import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direc
 export default class RoomManager {
   private players: Map<string, Player> = new Map();
   private readonly world: World;
+  private readonly emitter = new EventEmitter();
   private readonly physics = new Physics(this.updateEntities.bind(this));  
   private readonly VELOCITY = 2.6;
   private readonly serverTime = new Date();
@@ -17,6 +18,7 @@ export default class RoomManager {
     this.serverSocket = io;
     this.roomId = roomId;
     this.world = new World(bm);
+    this.emitter.on('explosion', this.explosionHandler.bind(this));
   }
 
   addPlayer(p: Player): void {
@@ -27,14 +29,13 @@ export default class RoomManager {
         moving: false,
         direction: 1
       });
-      p.emitter = new EventEmitter();
       p.moveSwitch = async (latency: number) => {
         if (p.moves) {
           p.stats!.timestamp = this.serverTime.toISOString();
           setTimeout( p.moves.pop, latency);
         }
       }
-      p.emitter.on('move_switch', p.moveSwitch); 
+      this.emitter.on('move_switch', p.moveSwitch); 
       this.positionChooser(p);
       this.players.set(p.playerId, p); 
       this.broadcastUpdates({
@@ -70,7 +71,7 @@ export default class RoomManager {
       const movement = (command as Movement);
       const ms = this.latencyCalculator(movement.timestamp, p);
       p.moves!.push(movement);
-      p.emitter!.emit('move_switch', ms);
+      this.emitter.emit('move_switch', ms);
       this.broadcastUpdates({playerId: playerId, command: command});
     }
   }
@@ -79,6 +80,22 @@ export default class RoomManager {
     const ms = this.latencyCalculator(bomb.timestamp, p);
     this.world.setDinamite(bomb.x,bomb.y, ms);
     this.broadcastUpdates({playerId: p.playerId, command: bomb});
+  }
+
+  private affectedByExplosion(p: Player): void {
+    if(this.world.touchExplosion(p.stats)){
+      this.killPlayer(p);
+    }
+  }
+
+  private explosionHandler(): void {
+    this.players.forEach(p => {
+      this.affectedByExplosion(p);
+    });
+  }
+
+  private killPlayer(p: Player): boolean{
+    return this.players.delete(p.playerId); 
   }
 
   private latencyCalculator(t1: string, p: Player ): number {
@@ -119,6 +136,7 @@ export default class RoomManager {
             }
             break;
         }
+       this.affectedByExplosion(p); 
       }
     }
   }
