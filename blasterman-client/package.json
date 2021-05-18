@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:prod": "npm run test && webpack --env prod --output-path=docs/ && cp ./docs/index.html ./docs/404.html",
+    "build:dev": "npm run test && webpack --env dev",
+    "start": "node .",
+    "test": "jasmine-ts --config=jasmine.json"
   },
   "keywords": [],
   "author": "",
