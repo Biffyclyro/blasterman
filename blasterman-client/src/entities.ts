@@ -1,6 +1,14 @@
-import Sprite = Phaser.Physics.Arcade.Sprite;
+import {Sprite} from 'phaser';
+import {Room} from './core/room';
 
-export class Player extends Sprite {
+export enum Direction {
+  Up = 1,
+  Down,
+  Right,
+  Left,
+}
+
+export class Player extends Sprite{
   playerId: string;
   moving: boolean;
   direction: Direction;
@@ -28,10 +36,4 @@ export class Player extends Sprite {
 
 }
 
-export enum Direction {
-  Up = 1,
-  Down,
-  Right,
-  Left,
-}
 
