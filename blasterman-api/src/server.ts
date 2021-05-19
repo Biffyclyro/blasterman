@@ -60,7 +60,14 @@ io.on("connection", socket => {
       socket.join(roomId);
       room!.addPlayer(player);
       console.log(`conecatado na sala ${roomId}`);
-      socket.send({info: socket.id, data: battleFieldMap});
+      const res = {
+        info: roomId,
+        data: {
+          player: player,
+          map: battleFieldMap
+        }
+      };
+      socket.send(res);
     }
   });
 
