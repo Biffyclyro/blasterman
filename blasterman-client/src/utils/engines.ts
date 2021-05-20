@@ -1,13 +1,14 @@
+import 'phaser';
 import {Entity, NearBlocks} from '../entities'
 
-export const centralize(e: Entity): Entity {
-  let difX = e.x % 32;
+export const centralize = (e: Entity): Entity => {
+  const difX = e.x % 32;
 
   let x;
 
   difX >= 18 ? x = e.x + (32 - difX) : x = e.x - difX;
 
-  let difY = e.y % 32;
+  const difY = e.y % 32;
 
   let y;
 
@@ -18,8 +19,8 @@ export const centralize(e: Entity): Entity {
   return {x, y}
 }
 
-export const findBlock = (bloc, {x: x, y: y}: Sprite, v: NearBlocks, mult: number) => {
-  let blkSize = 32 * mult;
+export const findBlock = (bloc: Phaser.GameObjects.GameObject, {x: x, y: y}: Sprite, v: NearBlocks, mult: number): void => {
+  const blkSize = 32 * mult;
   if (bloc.x == (x + blkSize) && bloc.y == y) {
     if (!v.r || bloc.x < v.r.x) {
       if (bloc.id == 'b') bloc.id = 'f';
@@ -58,4 +59,25 @@ export const findBlock = (bloc, {x: x, y: y}: Sprite, v: NearBlocks, mult: numbe
       v.u = bloc;
     }
   }
+}
+
+export const loading = (scene: Phaser.Scene): void => {
+  const loading = scene.add.text(600, 450, 'Loading');
+
+  loading.setScale(3, 3);
+
+  const tween = scene.add.tween({
+    targets: loading,
+    y: 200,
+    duration: 1000,
+    ease: 'Power2',
+    yoyo: true,
+    delay: 100,
+    repeat: -1
+  });
+
+  scene.on('end-loading', () => {
+    tween.destroy();
+    loading.destroy();
+  });
 }

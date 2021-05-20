@@ -1,6 +1,6 @@
-import {Sprite} from 'phaser';
-import {Room} from './core/room';
-import {centralize, findBlock} from './utils';
+import 'phaser';
+import Room from './core/room';
+import {centralize, findBlock} from './utils/engines';
 
 export enum Direction {
   Up = 38,
@@ -8,6 +8,8 @@ export enum Direction {
   Right = 39,
   Left = 37,
 }
+
+export type Stampable  = {timestamp: string;} & Entity;
 
 export type Status = {alive: boolean;} & Stampable;
 
@@ -23,12 +25,8 @@ export interface ServerPlayer {
 }
 
 export interface EnterRoomInfo {
-  player: {
-    playerId: string,
-    x: number,
-    y: number,
-    skin: string
-  };
+  player?: ServerPlayer;
+  players: ServerPlayer[]; 
   map: BattlefieldMap;
 }
 
@@ -37,7 +35,7 @@ export interface Entity {
   y: number;
 }
 
-interface SpriteWithId extends Sprite {
+interface SpriteWithId extends Phaser.Physics.Arcade.Sprite {
     id?: string;
 }
 
@@ -49,57 +47,50 @@ interface NearBlocks {
 }
 
 export interface BattlefieldMap {
+  numPlayers: number;
   tiles: string;
   breakableBlocks: Entity[];
   background: {key: string, url: string};
 }
 
-export class Player extends Sprite {
+export class Player extends Phaser.Physics.Arcade.Sprite {
   skin: string;
   playerId: string;
-  moving: boolean;
-  direction: Direction;
+  moving = false;
+  direction = Direction.Down;
   scene: Room;
-  alive: boolean = true;
+  alive = true;
   tamBomb = 2;
 
-  constructor(scene: Room, {skin, playerId, {x, y}}: ServerPlayer) {
-    super(scene, x, y, skin);
+  constructor(scene: Room, {skin, playerId, stats:{x, y}}: ServerPlayer) {
+    super(scene!, stats.x, stats.y, skin);
     this.playerId = playerId;
-    this.skin = skin;
+    this.skin = skin!;
 
     this.scene.anims.create({
       key: 'walk-side',
-      frame: this.scene.anims.generateFrameNumbers({
-        this.skin, {start: 0, end: 3}
-      }),
+      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 0, end: 3}),
       framRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'walk-up',
-      frame: this.scene.anims.generateFrameNumbers({
-        this.skin, {start: 4, end: 7}
-      }),
+      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 4, end: 7}),
       framRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'walk-down',
-      frame: this.scene.anims.generateFrameNumbers({
-        this.skin, {start: 8, end: 11}
-      }),
+      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 8, end: 11}),
       framRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'dead',
-      frame: this.scene.anims.generateFrameNumbers({
-        this.skin, {start: 12, end: 17}
-      }),
+      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 12, end: 17}),
       framRate: 10,
       repeat: 0
     });
@@ -119,7 +110,7 @@ export class Player extends Sprite {
       }
 
       this.anims.play('dead', true);
-      this.once('animationcomplete', () =>{
+      this.once('animationcomplete', () => {
         this.destroy();
       });
     }
@@ -150,9 +141,8 @@ export class Player extends Sprite {
   }
 
   setMovement(keyCode = 40, moving: boolean): void {
-      this.direction = keyCode; 
-      this.moving = moving;
-    }
+    this.direction = keyCode; 
+    this.moving = moving;
   }
 
   move(): void {

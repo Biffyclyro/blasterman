@@ -38,14 +38,9 @@ export default class RoomManager {
       this.emitter.on('move_switch', p.moveSwitch); 
       this.positionChooser(p);
       this.players.set(p.playerId, p); 
-      this.broadcastUpdates({
-        playerId: p.playerId, 
-        command: {
-          timestamp: this.serverTime.toISOString(),
-          moving: false,
-          direction: Direction.Down
-        }
-      });
+      if(this.players.size === 2) {
+        this.broadcastRoomReady(this.players);
+      }
     }
   }
 
@@ -146,7 +141,15 @@ export default class RoomManager {
     });
   }
 
-  broadcastUpdates(pc: PlayerCommand): void {
-    this.serverSocket.to(this.roomId).emit('command', {data: pc})
+   broadcastUpdates(pc: PlayerCommand): void {
+    this.serverSocket.to(this.roomId).emit('command', {data: pc});
+  }
+
+  private broadcastRoomReady(players: Player[]): void {
+    const enterRoomInfo = {
+      players: this.players,
+      map: this.battlefieldMap;
+    }
+    this.serverSocket.to(this.roomId).emit('room-ready', {info:this.roomId, data: enterRoomInfo});
   }
 }

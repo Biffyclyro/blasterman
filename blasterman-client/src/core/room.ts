@@ -1,16 +1,23 @@
+import '../services/websocket-service';
 import {Sprite} from 'phaser'; 
+import {loading} from '../utils/engines';
 import {NearBlocks, ObjectDto, Player, EnterRoomInfo} from '../entities';
-import socketIO from "socket.io-client";
  
 
 dotenv.config();
 
 export default class Room extends Phaser.Scene {
-  staticBlocks = this.physics.add.staticBlocks();
-  infos: EnterRoomInfo;
-  readonly FRAME_SIZE = 32;
-  readonly socket: SocketIO.Socket;
   player: Player;
+  cursors: Phaser.Types.Input.Keyboard.CursorKeys;
+  infos: EnterRoomInfo;
+  players: Player[] = [];
+  staticBlocks = this.physics.add.staticBlocks();
+  readonly FRAME_SIZE = 32;
+  readonly socket = WebSocketService.getInstance();
+
+  constructor() {
+    super('Room');
+  }
 
   init(infos: EnterRoomInfo): void {
     this.infos = infos;
@@ -18,10 +25,9 @@ export default class Room extends Phaser.Scene {
 
   preload(): void {
     this.load.audio('explosion-sound', './assets/sounds/explosion.mp3');
-    this.load.spritesheet('tiles', `${process.env.API_URL}/assets/${this.battlefieldMap.tiles}/tiles-area01.png`, {
-      frameHeight: 32,
-      frameWidth: 32
-    });
+    this.load.spritesheet('tiles', 
+      `${process.env.API_URL}/assets/${this.infos.map.tiles}/tiles-area01.png`, 
+      {frameHeight: 32, frameWidth: 32});
     this.load.image(this.battlefieldMap.background.key, 
       this.battlefieldMap.background.url); 
     this.load.spritesheet('dynamite', './assets/dinamite.png',{
@@ -36,6 +42,8 @@ export default class Room extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     }); 
+    
+    this.emit('end-loading');
   }
 
   create(): void {
@@ -65,10 +73,31 @@ export default class Room extends Phaser.Scene {
     });
 
     this.player = this.addEntity(new Player(this, infos.player))
-                      .setSize(9, 10)
-                      .setOffset(8, 10);
+    .setSize(9, 10)
+    .setOffset(8, 10);
+
+    this.infos.players.forEach(p => {
+      const player = this.addEntity(new Player(p))
+                .setSize(9, 10)
+                .setOffset(8, 10);
+      this.players.push(player);
+    });
 
     this.buildMap(this.infos.map);
+    this.cursors = this.input.keyboard.createCursorKeys();
+  }
+
+  update(): void {
+    this.players.forEach(p => {
+      if(p != undefined && p.alive) {
+        p.move();
+      }
+    });
+
+    if(this.player != undefined) {
+      this.player.localCommands(this.cursors);
+      this.player.move();
+    }
   }
 
   addEntity<T extends Phaser.GameObjects.GameObject>(e: T): T{
@@ -155,52 +184,52 @@ export default class Room extends Phaser.Scene {
   }
 
   explode(nearBlocks: NearBlocks): void {
-    if (blocosVizinhos.r != undefined && blocosVizinhos.r.id == 'f') {
-      blocosVizinhos.r.id = 'p';
-      blocosVizinhos.r.anims.play('destroy', true);
-      blocosVizinhos.r.once('animationcomplete', () => {
-        blocosVizinhos.r.destroy();
+    if (nearBlocks.r != undefined && nearBlocks.r.id == 'f') {
+      nearBlocks.r.id = 'p';
+      nearBlocks.r.anims.play('destroy', true);
+      nearBlocks.r.once('animationcomplete', () => {
+        nearBlocks.r.destroy();
       });
     }
-    if (blocosVizinhos.l != undefined && blocosVizinhos.l.id == 'f') {
-      blocosVizinhos.l.id = 'p';
-      blocosVizinhos.l.anims.play('destroy', true);
-      blocosVizinhos.l.once('animationcomplete', () => {
-        blocosVizinhos.l.destroy();
+    if (nearBlocks.l != undefined && nearBlocks.l.id == 'f') {
+      nearBlocks.l.id = 'p';
+      nearBlocks.l.anims.play('destroy', true);
+      nearBlocks.l.once('animationcomplete', () => {
+        nearBlocks.l.destroy();
       });
     }
-    if (blocosVizinhos.u != undefined && blocosVizinhos.u.id == 'f') {
-      blocosVizinhos.u.id = 'p';
-      blocosVizinhos.u.anims.play('destroy', true);
-      blocosVizinhos.u.once('animationcomplete', () => {
-        blocosVizinhos.u.destroy();
+    if (nearBlocks.u != undefined && nearBlocks.u.id == 'f') {
+      nearBlocks.u.id = 'p';
+      nearBlocks.u.anims.play('destroy', true);
+      nearBlocks.u.once('animationcomplete', () => {
+        nearBlocks.u.destroy();
       });
     }
-    if (blocosVizinhos.d != undefined && blocosVizinhos.d.id == 'f') {
-      blocosVizinhos.d.id = 'p';
-      blocosVizinhos.d.anims.play('destroy', true);
-      blocosVizinhos.d.once('animationcomplete', () => {
-        blocosVizinhos.d.destroy();
+    if (nearBlocks.d != undefined && nearBlocks.d.id == 'f') {
+      nearBlocks.d.id = 'p';
+      nearBlocks.d.anims.play('destroy', true);
+      nearBlocks.d.once('animationcomplete', () => {
+        nearBlocks.d.destroy();
       });
     }
   }
 
   setBomb(p: Player): void {
-    {x, y}: Entity = centralize(p);            
+    const {x, y}: Entity = centralize(p);            
 
-    let dinamite = this.physics.add.sprite(x, y, 'dynamite')
+    const dinamite = this.physics.add.sprite(x, y, 'dynamite')
     .setSize(32, 32)
     .setImmovable(true);
 
     const blockList = this.staticBlocks.childer.entries;
-    let nearBlocks: NearBlocks = {};
-    let explosion: Explosion = {
+    const nearBlocks: NearBlocks = {};
+    const explosion: Explosion = {
       explosionEnd: [],
       explosionBody: []
     };
 
     blockList.forEach(b => {
-      for (let i = p.tamBomb: i > 0; i--) {
+      for (let i = p.tamBomb; i > 0; i--) {
         findBlock(b, dinamite, nearBlocks, i);
       }
     });
@@ -237,8 +266,8 @@ export default class Room extends Phaser.Scene {
   }
 
   buildMap(bm: BattlefieldMap): void {
-    let offsetSide = 160;
-    let offsetUp = 16;
+    const offsetSide = 160;
+    const offsetUp = 16;
 
     this.add.image(offsetSide, offsetUp, bm.background.key)
     .setOrigin(0, 0)
@@ -254,38 +283,28 @@ export default class Room extends Phaser.Scene {
     for (let i = 0; i < 33; i++) {
       //linha horizontal superior
       this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, offsetUp, 'tiles', 7)
-        .setDisplaySize(32, 32)
-        .setSize(32, 32);
 
       //linha horizontal inferior
       this.staticBlocks.create(FRAME_SIZE * i + offsetSide, 18 * FRAME_SIZE + offsetUp, 'tiles', 7)
-        .setDisplaySize(32, 32)
-        .setSize(32, 32);
 
       if (i < 19) {
         //linha vertical quesquerda
         this.staticBlocks.create(offsetSide, i * FRAME_SIZE + offsetUp, 'tiles', 7)
-          .setDisplaySize(32, 32)
-          .setSize(32, 32);
         //linha vertical direita
         this.staticBlocks.create(FRAME_SIZE * 32 + offsetSide, i * FRAME_SIZE + offsetUp, 'tiles', 7)
-          .setDisplaySize(32, 32)
-          .setSize(32, 32);
       }
       //blocos indestrutíveis internos
       if (i % 2 === 0) {
         for (let j = 2; j <= 16; j += 2) {
           this.staticBlocks.create(FRAME_SIZE * i + offsetSide, j * FRAME_SIZE + offsetUp, 'tiles', 7)
-            .setDisplaySize(32, 32)
-            .setSize(32, 32);
         }
       }
     }
     //blocos destrutíveis
-    for (let breakableBLock of c.blocksBreakable) {
+    for (const breakableBLock of c.blocksBreakable) {
       this.staticBlocks.create(breakableBLock.x * FRAME_SIZE + offsetSide,
         breakableBLock.y * FRAME_SIZE + offsetUp,
-        c.key, ).setDisplaySize(32, 32).setSize(32, 32).id = 'b';
+        c.key, ).id = 'b';
     }
   }
 }

@@ -4,7 +4,10 @@ export default class Main extends Phaser.Scene {
   private title;
   private playButton;
   private playerId: string;
-  
+
+  constructor() {
+    super('Main');
+  }
 
   preload(): void {
     this.load.image('title', 'assets/img/titlescreen.png');
@@ -29,19 +32,17 @@ export default class Main extends Phaser.Scene {
   }
 
   searchGame(): void {
-    this.scene.add('waitScreen', WaitScreen, true, {playerId: this.playerId});
+    this.scene.start('LoagindScreen');
     this.playButton.destroy();
     this.title.destroy();
   }
-
-
 }
 
 const config = {
   type: Phaser.CANVAS,
   width:1366,
   height: 768,
-  scene: Main,
+  scene: [Main, LoagindScreen, Room],
   physics: 'arcade'
 }
 

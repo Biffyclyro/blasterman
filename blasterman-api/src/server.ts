@@ -42,33 +42,32 @@ io.engine.generateId = (req: any) => {
 }
 
 io.on("connection", socket => {
-  socket.on('enter_room', ( enterRequest: ObjectDto<Player>) => {
+  socket.on('enter-room', ( enterRequest: ObjectDto<string>) => {
 
-    let roomId = enterRequest.info;
+    let roomId = enterRequest.data;
     if (!roomId) {
       roomId = `room-${idGenerator()}`;
     }
     const room = rooms.get(roomId);
-    const player: Player | undefined = enterRequest.data;
-
-    if(player) {
-      player.playerId = socket.id;
-      if(!room) {
-        const r = new RoomManager(io, roomId, battleFieldMap);
-        rooms.set(roomId, r);
-      }
-      socket.join(roomId);
-      room!.addPlayer(player);
-      console.log(`conecatado na sala ${roomId}`);
-      const res = {
-        info: roomId,
-        data: {
-          player: player,
-          map: battleFieldMap
-        }
-      };
-      socket.send(res);
+    const player = {
+      playerId: socket.id
     }
+
+    if(!room) {
+      const r = new RoomManager(io, roomId, battleFieldMap);
+      rooms.set(roomId, r);
+    }
+    socket.join(roomId);
+    room!.addPlayer(player);
+    console.log(`conecatado na sala ${roomId}`);
+    const res = {
+      info: roomId,
+      data: {
+        player: player,
+        map: battleFieldMap
+      }
+    };
+    socket.send(res);
   });
 
   socket.on('command', (commandRequest: ObjectDto<PlayerCommand>) => {

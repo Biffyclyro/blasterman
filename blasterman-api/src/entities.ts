@@ -38,7 +38,7 @@ export interface PlayerCommand {
 export interface Player {
   playerId: string;
   skin?: string;
-  stats: Status;
+  stats?: Status;
   moves?: Movement[];
   moveSwitch?: (time: number) => Promise<void>; 
 }
@@ -47,6 +47,11 @@ export interface BattlefieldMap {
   tiles: string;
   breakableBlocks: Entity[];
   background: {key: string, url: string};
+}
+
+export interface EnterRoomInfo {
+  players: Player[]; 
+  map: BattlefieldMap;
 }
 
 export class Dinamite  extends EventEmitter implements Entity{
