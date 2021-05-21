@@ -1,5 +1,5 @@
 import 'phaser';
-import {Entity, NearBlocks} from '../entities'
+import {Entity, NearBlocks, SpriteWithId} from '../entities'
 
 export const centralize = (e: Entity): Entity => {
   const difX = e.x % 32;
@@ -19,7 +19,9 @@ export const centralize = (e: Entity): Entity => {
   return {x, y}
 }
 
-export const findBlock = (bloc: Phaser.GameObjects.GameObject, {x: x, y: y}: Sprite, v: NearBlocks, mult: number): void => {
+export const findBlock = (bloc: SpriteWithId, 
+                          {x: x, y: y}: Phaser.GameObjects.Sprite, 
+                          v: NearBlocks, mult: number): void => {
   const blkSize = 32 * mult;
   if (bloc.x == (x + blkSize) && bloc.y == y) {
     if (!v.r || bloc.x < v.r.x) {
@@ -76,7 +78,7 @@ export const loading = (scene: Phaser.Scene): void => {
     repeat: -1
   });
 
-  scene.on('end-loading', () => {
+  scene.events.on('end-loading', () => {
     tween.destroy();
     loading.destroy();
   });

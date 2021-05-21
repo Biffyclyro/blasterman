@@ -1,7 +1,7 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
-import {loading, centralize} from '../utils/engines';
-import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity} from '../entities';
+import {loading, centralize, findBlock} from '../utils/engines';
+import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
 import * as dotenv from 'dotenv';
  
 
@@ -223,7 +223,7 @@ export default class Room extends Phaser.Scene {
     .setSize(32, 32)
     .setImmovable(true);
 
-    const blockList = this.staticBlocks.childer.entries;
+    const blockList = this.staticBlocks.children.entries;
     const nearBlocks: NearBlocks = {};
     const explosion: Explosion = {
       explosionEnd: [],
@@ -232,7 +232,7 @@ export default class Room extends Phaser.Scene {
 
     blockList.forEach(b => {
       for (let i = p.tamBomb; i > 0; i--) {
-        findBlock(b, dinamite, nearBlocks, i);
+        findBlock((b as SpriteWithId), dinamite, nearBlocks, i);
       }
     });
     dinamite.displayWidth = 32;
@@ -240,15 +240,14 @@ export default class Room extends Phaser.Scene {
     dinamite.anims.play('dynamite', true);
 
     this.createExplosion(explosion, dinamite, p.tamBomb);
-    this.scene.physics.add.collider(dinamite, p);
-    this.scene.physics.add.collider(dinamite, this.staticBlocks);
-    this.scene.physics.add.collider(dinamite, dinamite);
-    this.scene.physics.add.collider(this.explosions, this.staticBlocks);
+    this.physics.add.collider(dinamite, p);
+    this.physics.add.collider(dinamite, this.staticBlocks);
+    this.physics.add.collider(dinamite, dinamite);
 
     dinamite.on('explosion', this.explode.bind(this));
 
     dinamite.once('animationcomplete', () => {
-      dinamite.once('explode', nearBlocks);
+      dinamite.once('explode', () => {this.explode(nearBlocks)});
       dinamite.anims.play('explosion', true).once('animationcomplete', () => {
         dinamite.destroy();
       });
@@ -287,26 +286,26 @@ export default class Room extends Phaser.Scene {
       this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, offsetUp, 'tiles', 7)
 
       //linha horizontal inferior
-      this.staticBlocks.create(FRAME_SIZE * i + offsetSide, 18 * FRAME_SIZE + offsetUp, 'tiles', 7)
+      this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, 18 * this.FRAME_SIZE + offsetUp, 'tiles', 7)
 
       if (i < 19) {
         //linha vertical quesquerda
-        this.staticBlocks.create(offsetSide, i * FRAME_SIZE + offsetUp, 'tiles', 7)
+        this.staticBlocks.create(offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7)
         //linha vertical direita
-        this.staticBlocks.create(FRAME_SIZE * 32 + offsetSide, i * FRAME_SIZE + offsetUp, 'tiles', 7)
+        this.staticBlocks.create(this.FRAME_SIZE * 32 + offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7)
       }
       //blocos indestrutíveis internos
       if (i % 2 === 0) {
         for (let j = 2; j <= 16; j += 2) {
-          this.staticBlocks.create(FRAME_SIZE * i + offsetSide, j * FRAME_SIZE + offsetUp, 'tiles', 7)
+          this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, j * this.FRAME_SIZE + offsetUp, 'tiles', 7)
         }
       }
     }
     //blocos destrutíveis
-    for (const breakableBLock of c.blocksBreakable) {
-      this.staticBlocks.create(breakableBLock.x * FRAME_SIZE + offsetSide,
-        breakableBLock.y * FRAME_SIZE + offsetUp,
-        c.key, ).id = 'b';
+    for (const breakableBlock of bm.breakableBlocks) {
+      this.staticBlocks.create(breakableBlock.x * this.FRAME_SIZE + offsetSide,
+        breakableBlock.y * this.FRAME_SIZE + offsetUp,
+        'tiles', 8).id = 'b';
     }
   }
 }

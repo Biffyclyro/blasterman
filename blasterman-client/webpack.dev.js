@@ -6,7 +6,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: './src/game.ts',
-  target: 'node',
   mode: 'development',
   devtool: 'eval-source-map',
   module: {
@@ -22,17 +21,28 @@ module.exports = {
     extensions: ['.ts', '.js'],
   },
   output: {
-    filename: 'server.min.js',
+    filename: 'game.js',
+    publicPath: './',
     path: path.resolve(__dirname, 'dist'),
   },
 
   plugins: [
+    new HtmlWebpackPlugin({
+            filename:  'index.html',
+            template: 'index.html'
+        }),
     new ESLintPlugin(),
     new CopyPlugin({
       patterns: [
         {
           from: './assets',
-          to: './assets'
+          to: './assets',
+          force: true
+        },
+        {
+          from: './app.css',
+          to: './app.css',
+          force: true
         }
       ]
     })

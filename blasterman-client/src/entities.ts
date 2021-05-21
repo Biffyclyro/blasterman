@@ -35,20 +35,20 @@ export interface Entity {
   y: number;
 }
 
-interface SpriteWithId extends Phaser.Physics.Arcade.Sprite {
-    id?: string;
+export interface SpriteWithId extends Phaser.Physics.Arcade.Sprite {
+  id?: string;
 }
 
 export interface Explosion {
-    explosionBody: Phaser.GameObjects.Sprite[];
-    explosionEnd: Phaser.GameObjects.Sprite[];
+  explosionBody: Phaser.GameObjects.Sprite[];
+  explosionEnd: Phaser.GameObjects.Sprite[];
 }
 
 export interface NearBlocks {
-    r?: SpriteWithId;
-    l?: SpriteWithId;
-    u?: SpriteWithId;
-    d?: SpriteWithId;
+  r?: SpriteWithId;
+  l?: SpriteWithId;
+  u?: SpriteWithId;
+  d?: SpriteWithId;
 }
 
 export interface BattlefieldMap {

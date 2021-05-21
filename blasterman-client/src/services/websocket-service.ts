@@ -1,11 +1,12 @@
-import socketIO from "socket.io-client";
+import {io, Socket} from "socket.io-client";
+import * as dotenv from 'dotenv';
 
 export default class WebSocketService {
-  private static socket: SocketIO.Socket;
+  private static socket: Socket;
 
-  static getInstance(): SocketIO.Socket {
+  static getInstance(): Socket {
     if(!this.socket) {
-      this.socket = socketIO(process.env.API_URL);
+      this.socket = io(`${process.env.API_URL}`);
     }
     return this.socket;
   }
