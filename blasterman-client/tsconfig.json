@@ -5,6 +5,7 @@
         "removeComments": true,
         "module": "CommonJS",
         "strict": true,
+        "strictPropertyInitialization": false,
         "sourceMap": true,
         "preserveConstEnums": true
     }

@@ -20,7 +20,7 @@ export interface ObjectDto<T> {
 
 export interface ServerPlayer {
   playerId: string;
-  skin?: string;
+  skin: string;
   stats: Status;
 }
 
@@ -39,7 +39,12 @@ interface SpriteWithId extends Phaser.Physics.Arcade.Sprite {
     id?: string;
 }
 
-interface NearBlocks {
+export interface Explosion {
+    explosionBody: Phaser.GameObjects.Sprite[];
+    explosionEnd: Phaser.GameObjects.Sprite[];
+}
+
+export interface NearBlocks {
     r?: SpriteWithId;
     l?: SpriteWithId;
     u?: SpriteWithId;
@@ -63,42 +68,43 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   tamBomb = 2;
 
   constructor(scene: Room, {skin, playerId, stats:{x, y}}: ServerPlayer) {
-    super(scene!, stats.x, stats.y, skin);
+    super(scene, x, y, skin);
+    this.scene = scene;
     this.playerId = playerId;
     this.skin = skin!;
 
     this.scene.anims.create({
       key: 'walk-side',
-      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 0, end: 3}),
-      framRate: 10,
+      frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 0, end: 3}),
+      frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'walk-up',
-      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 4, end: 7}),
-      framRate: 10,
+      frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 4, end: 7}),
+      frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'walk-down',
-      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 8, end: 11}),
-      framRate: 10,
+      frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 8, end: 11}),
+      frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'dead',
-      frame: this.scene.anims.generateFrameNumbers(this.skin, {start: 12, end: 17}),
-      framRate: 10,
+      frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 12, end: 17}),
+      frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
       key: 'stand',
-      frame:[{key: this.skin, frame: 9}],
-      framRate: 10,
+      frames:[{key: this.skin, frame: 9}],
+      frameRate: 10,
       repeat: -1
     });
   }
@@ -117,53 +123,45 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   localCommands (cursors: Phaser.Types.Input.Keyboard.CursorKeys): void {
-    if (p.alive) {
+    if (this.alive) {
       if (cursors.left.isDown) {
-        this.setMovement(cursors.left.keyCode, true);
+        this.setMovement(true, cursors.left.keyCode);
       } else if (cursors.right.isDown) {
-        this.setMovement(cursors.left.keyCode, true);
-        this.direction = Direction.right;
-        this.moving = true;
+        this.setMovement(true, cursors.left.keyCode);
       } else if (cursors.up.isDown) {
-        this.setMovement(cursors.left.keyCode, true);
-        this.direction = Direction.up;
-        this.moving = true;
+        this.setMovement(true, cursors.left.keyCode);
       } else if (cursors.down.isDown) {
-        this.setMovement(cursors.left.keyCode, true);
-        this.direction = Direction.down;
-        this.moving = true;
+        this.setMovement(true, cursors.left.keyCode);
       } else {
         this.setMovement(false);
-        this.direction = Direction.down;
-        this.moving = false;
       }
     }
   }
 
-  setMovement(keyCode = 40, moving: boolean): void {
+  setMovement(moving: boolean, keyCode = 40): void {
     this.direction = keyCode; 
     this.moving = moving;
   }
 
   move(): void {
     if(this.moving && this.alive){
-      switch(Direction) {
-        case 1:
+      switch(this.direction) {
+        case Direction.Up:
           this.anims.play('walk-up', true);
           this.setVelocityY(-180);
           break
-        case 2:
+        case Direction.Down:
           this.anims.play('walk-down', true);
           this.setVelocityY(180);
           break
-        case 3:
+        case Direction.Right:
           this.resetFlip();
           this.anims.play('walk-side', true);
           this.setVelocityX(180);
           break
-        case 4:
+        case Direction.Left:
           this.setFlipX(true);
-          this.anims.play('walk-down', true);
+          this.anims.play('walk-side', true);
           this.setVelocityX(-180);
           break
       }

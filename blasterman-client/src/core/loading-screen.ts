@@ -1,28 +1,29 @@
 import 'phaser';
+import WebSocketService from '../services/websocket-service';
 import {loading} from '../utils/engines';
-import {Player} from '../entities';
-import {RoomManager} from '../core/room';
+import {EnterRoomInfo, ObjectDto, ServerPlayer} from '../entities';
+import RoomManager from '../core/room';
 
-export class LoagindScreen extends Phaser.Scene {
+export default class LoadingScreen extends Phaser.Scene {
   readonly socket = WebSocketService.getInstance();
   infos: EnterRoomInfo;
-  localPlayer: Player;
+  localPlayer: ServerPlayer;
 
   constructor() {
-    super('LoagindScreen');
+    super('LoadingScreen');
   }
   
   init(): void {
     loading(this);
-    socket.emit('enter-room');
-    socket.on('enter-room', (res: ObjectDto<ServerPlayer>) => {
-      this.localPlayer = res.data; 
+    this.socket.emit('enter-room');
+    this.socket.on('enter-room', (res: ObjectDto<ServerPlayer>) => {
+      this.localPlayer = res.data!; 
     });
   }
 
   create(): void {
-    socket.on('room-ready', (res: ObjectDto<EnterRoomInfo>) => {
-      this.infos = res.data;
+    this.socket.on('room-ready', (res: ObjectDto<EnterRoomInfo>) => {
+      this.infos = res.data!;
       this.infos.player = this.localPlayer;
       this.runGame();
     }); 

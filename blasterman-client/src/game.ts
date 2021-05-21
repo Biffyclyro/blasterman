@@ -1,9 +1,10 @@
 import 'phaser';
+import LoadingScreen from './core/loading-screen';
+import RoomManager from './core/room';
 
 export default class Main extends Phaser.Scene {
-  private title;
-  private playButton;
-  private playerId: string;
+  playButton: Phaser.GameObjects.Text;
+  title: Phaser.GameObjects.Image;
 
   constructor() {
     super('Main');
@@ -11,10 +12,6 @@ export default class Main extends Phaser.Scene {
 
   preload(): void {
     this.load.image('title', 'assets/img/titlescreen.png');
-
-    ConnectionService.instance.connectPlayer().then(r => {
-      this.playerId = r
-    });
   }
 
   create(): void {
@@ -26,15 +23,14 @@ export default class Main extends Phaser.Scene {
     this.playButton.setScale(3, 3);
     this.playButton.setInteractive();
     this.playButton.on('pointerdown', () => {
-
       this.searchGame();
     });
   }
 
   searchGame(): void {
-    this.scene.start('LoagindScreen');
-    this.playButton.destroy();
+    this.scene.start('LoadingScreen');
     this.title.destroy();
+    this.playButton.destroy();
   }
 }
 
@@ -42,8 +38,10 @@ const config = {
   type: Phaser.CANVAS,
   width:1366,
   height: 768,
-  scene: [Main, LoagindScreen, Room],
-  physics: 'arcade'
+  scene: [Main, LoadingScreen, RoomManager],
+  physics: {
+    default: 'arcade'
+  } 
 }
 
 const game = new Phaser.Game(config);

@@ -1,7 +1,8 @@
-import '../services/websocket-service';
-import {Sprite} from 'phaser'; 
-import {loading} from '../utils/engines';
-import {NearBlocks, ObjectDto, Player, EnterRoomInfo} from '../entities';
+import 'phaser'; 
+import WebSocketService from '../services/websocket-service';
+import {loading, centralize} from '../utils/engines';
+import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity} from '../entities';
+import * as dotenv from 'dotenv';
  
 
 dotenv.config();
@@ -11,7 +12,7 @@ export default class Room extends Phaser.Scene {
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   infos: EnterRoomInfo;
   players: Player[] = [];
-  staticBlocks = this.physics.add.staticBlocks();
+  staticBlocks = this.physics.add.staticGroup();
   readonly FRAME_SIZE = 32;
   readonly socket = WebSocketService.getInstance();
 
@@ -28,8 +29,8 @@ export default class Room extends Phaser.Scene {
     this.load.spritesheet('tiles', 
       `${process.env.API_URL}/assets/${this.infos.map.tiles}/tiles-area01.png`, 
       {frameHeight: 32, frameWidth: 32});
-    this.load.image(this.battlefieldMap.background.key, 
-      this.battlefieldMap.background.url); 
+    this.load.image(this.infos.map.background.key, 
+      this.infos.map.background.url); 
     this.load.spritesheet('dynamite', './assets/dinamite.png',{
       frameHeight: 32,
       frameWidth: 32
@@ -43,41 +44,41 @@ export default class Room extends Phaser.Scene {
       frameWidth: 32
     }); 
     
-    this.emit('end-loading');
+    this.events.emit('end-loading');
   }
 
   create(): void {
     this.anims.create({
       key: 'dynamite',
       frames: this.anims.generateFrameNumbers('dynamite', {start: 0, end: 10}),
-      framRate: 15,
+      frameRate: 15,
       repeat: 0
     });
     this.anims.create({
       key: 'explosion',
       frames: this.anims.generateFrameNumbers('tiles', {start: 16, end: 23}),
-      framRate: 15,
+      frameRate: 15,
       repeat: 0
     });
     this.anims.create({
       key: 'explosion-side',
       frames: this.anims.generateFrameNumbers('tiles', {start: 8, end: 15}),
-      framRate: 15,
+      frameRate: 15,
       repeat: 0
     });
     this.anims.create({
       key: 'explosion-end',
       frames: this.anims.generateFrameNumbers('tiles', {start: 24, end: 31}),
-      framRate: 15,
+      frameRate: 15,
       repeat: 0
     });
 
-    this.player = this.addEntity(new Player(this, infos.player))
+    this.player = this.addEntity(new Player(this, this.infos.player!))
     .setSize(9, 10)
     .setOffset(8, 10);
 
     this.infos.players.forEach(p => {
-      const player = this.addEntity(new Player(p))
+      const player = this.addEntity(new Player(this, p))
                 .setSize(9, 10)
                 .setOffset(8, 10);
       this.players.push(player);
@@ -107,9 +108,8 @@ export default class Room extends Phaser.Scene {
     return e;
   }
 
-  createExplosion(e: Explosion, {x, y}: Sprite, tamBomb: number): void {
-    const corpo = this.tamBomb - 1;
-
+  createExplosion(e: Explosion, {x, y}: Phaser.GameObjects.Sprite, tamBomb: number): void {
+    const corpo = tamBomb - 1;
     //corpo da explosão
     for (let i = 1; i <= corpo; i++) {
       e.explosionBody
@@ -147,70 +147,72 @@ export default class Room extends Phaser.Scene {
 
   animateExplosion(index: number, explosion: Explosion): void {
 
-    const world = this.scene.physics.world;
+    const world = this.physics.world;
 
     if (explosion.explosionBody[index]) {
-      if (!world.collide(explosion.explosionBody[index], this.scene.staticBlocks)) {
+      if (!world.collide(explosion.explosionBody[index], this.staticBlocks)) {
         explosion.explosionBody[index].anims.play('explosion-side', true);
 
-        if (this.scene.player.alive
-          && this.scene.physics.world.collide(explosion.explosionBody[index], this.scene.player)) {
+        if (this.player.alive
+          && this.physics.world.collide(explosion.explosionBody[index], this.player)) {
 
-          this.scene.player.killNotify();
+          this.player.die();
         }
 
-        this.scene.room.players.forEach((p: Player) => {
-          if (p.alive && world.collide(explosion.explosionBody[index], p)) p.killNotify();
+        this.players.forEach((p: Player) => {
+          if (p.alive && world.collide(explosion.explosionBody[index], p)) {p.die();}
         });
 
         this.animateExplosion(index + 4, explosion);
       }
 
     } else {
-      if (!world.collide(explosion.explosionEnd[index % 4], this.scene.staticBlocks)) {
+      if (!world.collide(explosion.explosionEnd[index % 4], this.staticBlocks)) {
         explosion.explosionEnd[index % 4].anims.play('explosion-end', true);
 
-        if (this.scene.player.alive
-          && this.scene.physics.world.collide(explosion.explosionEnd[index % 4], this.scene.player)) {
+        if (this.player.alive
+          && this.physics.world.collide(explosion.explosionEnd[index % 4], this.player)) {
 
-          this.scene.player.killNotify();
+          this.player.die();
         }
 
-        this.scene.room.players.forEach((p: Player) => {
-          if (p.alive && world.collide(explosion.explosionEnd[index % 4], p)) p.killNotify();
+        this.players.forEach((p: Player) => {
+          if (p.alive && world.collide(explosion.explosionEnd[index % 4], p)) p.die();
         });
       }
     }
   }
 
   explode(nearBlocks: NearBlocks): void {
-    if (nearBlocks.r != undefined && nearBlocks.r.id == 'f') {
-      nearBlocks.r.id = 'p';
-      nearBlocks.r.anims.play('destroy', true);
-      nearBlocks.r.once('animationcomplete', () => {
-        nearBlocks.r.destroy();
-      });
-    }
-    if (nearBlocks.l != undefined && nearBlocks.l.id == 'f') {
-      nearBlocks.l.id = 'p';
-      nearBlocks.l.anims.play('destroy', true);
-      nearBlocks.l.once('animationcomplete', () => {
-        nearBlocks.l.destroy();
-      });
-    }
-    if (nearBlocks.u != undefined && nearBlocks.u.id == 'f') {
-      nearBlocks.u.id = 'p';
-      nearBlocks.u.anims.play('destroy', true);
-      nearBlocks.u.once('animationcomplete', () => {
-        nearBlocks.u.destroy();
-      });
-    }
-    if (nearBlocks.d != undefined && nearBlocks.d.id == 'f') {
-      nearBlocks.d.id = 'p';
-      nearBlocks.d.anims.play('destroy', true);
-      nearBlocks.d.once('animationcomplete', () => {
-        nearBlocks.d.destroy();
-      });
+    if(nearBlocks){
+      if (nearBlocks.r && nearBlocks.r.id === 'f') {
+        nearBlocks.r.id = 'p';
+        nearBlocks.r.anims.play('destroy', true);
+        nearBlocks.r.once('animationcomplete', () => {
+          nearBlocks.r!.destroy();
+        });
+      }
+      if (nearBlocks.l && nearBlocks.l.id === 'f') {
+        nearBlocks.l.id = 'p';
+        nearBlocks.l.anims.play('destroy', true);
+        nearBlocks.l.once('animationcomplete', () => {
+          nearBlocks.l!.destroy();
+        });
+      }
+      if (nearBlocks.u && nearBlocks.u.id === 'f') {
+        nearBlocks.u.id = 'p';
+        nearBlocks.u.anims.play('destroy', true);
+        nearBlocks.u.once('animationcomplete', () => {
+          nearBlocks.u!.destroy();
+        });
+      }
+      if (nearBlocks.d && nearBlocks.d.id === 'f') {
+        nearBlocks.d.id = 'p';
+        nearBlocks.d.anims.play('destroy', true);
+        nearBlocks.d.once('animationcomplete', () => {
+          nearBlocks.d!.destroy();
+        });
+      }
     }
   }
 
