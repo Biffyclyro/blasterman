@@ -4,6 +4,7 @@ const ESLintPlugin = require('eslint-webpack-plugin');
 const CopyPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+
 module.exports = {
   entry: './src/game.ts',
   mode: 'development',
@@ -28,9 +29,9 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-            filename:  'index.html',
-            template: 'index.html'
-        }),
+      filename:  'index.html',
+      template: 'index.html'
+    }),
     new ESLintPlugin(),
     new CopyPlugin({
       patterns: [

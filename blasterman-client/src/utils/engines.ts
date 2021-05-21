@@ -1,6 +1,8 @@
 import 'phaser';
 import {Entity, NearBlocks, SpriteWithId} from '../entities'
 
+export const API_URL = 'http://localhost:8080';
+
 export const centralize = (e: Entity): Entity => {
   const difX = e.x % 32;
 

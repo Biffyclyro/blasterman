@@ -23,7 +23,6 @@ module.exports = {
   },
 
   plugins: [
-    new HtmlWebpackPlugin(),
     new ESLintPlugin(),
     new CopyPlugin({
       patterns: [

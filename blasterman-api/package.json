@@ -4,8 +4,9 @@
   "description": "",
   "main": "dist/server.min.js",
   "scripts": {
-    "build": "npm run test && webpack",
     "start": "node .",
+    "build": "npm run test && webpack",
+    "build:dev": "webpack",
     "test": "jasmine-ts --config=jasmine.json"
   },
   "keywords": [],
@@ -32,7 +33,6 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "quadtree-lib": "^1.0.9",
     "socket.io": "^4.0.0",

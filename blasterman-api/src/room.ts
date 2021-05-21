@@ -2,6 +2,7 @@ import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction} from './entities';
+import {battleFieldMap} from './utils/engines'
 
 
 export default class RoomManager {
@@ -13,11 +14,13 @@ export default class RoomManager {
   private readonly serverTime = new Date();
   private readonly serverSocket: Server;
   private readonly roomId: string;
+  private readonly battlefieldMap: BattlefieldMap;
 
   constructor(io: Server, roomId: string, bm: BattlefieldMap){
     this.serverSocket = io;
     this.roomId = roomId;
     this.world = new World(bm);
+    this.battlefieldMap = battleFieldMap;
     this.emitter.on('explosion', this.explosionHandler.bind(this));
   }
 
@@ -25,7 +28,7 @@ export default class RoomManager {
     if (!this.players.has(p.playerId) ) {
       p.moves = [];
       p.moves.push({
-        timestamp: p.stats.timestamp, 
+        timestamp: p.stats!.timestamp, 
         moving: false,
         direction: 1
       });
@@ -45,14 +48,16 @@ export default class RoomManager {
   }
 
   private positionChooser(p: Player): void {
-    if (this.players.size === 0) {
-      p.stats.x = 190;
-      p.stats.y = 48;
-      p.skin = 'cop';
-    } else {
-      p.stats.x = 1148;
-      p.stats.y = 554;
-      p.skin = 'rob';
+    if(p.stats){
+      if (this.players.size === 0) {
+        p.stats.x = 190;
+        p.stats.y = 48;
+        p.skin = 'cop';
+      } else {
+        p.stats.x = 1148;
+        p.stats.y = 554;
+        p.skin = 'rob';
+      }
     }
   }
 
@@ -78,7 +83,7 @@ export default class RoomManager {
   }
 
   private affectedByExplosion(p: Player): void {
-    if(this.world.touchExplosion(p.stats)){
+    if(this.world.touchExplosion(p.stats!)){
       this.killPlayer(p);
     }
   }
@@ -97,7 +102,7 @@ export default class RoomManager {
     const first = new Date(t1); 
     const last = new Date(p.moves![0].timestamp); 
     const clientTimeElapsed = first.getTime() - last.getTime(); 
-    const serverTimeElapsed = this.serverTime.getTime() - new Date(p.stats.timestamp).getTime();
+    const serverTimeElapsed = this.serverTime.getTime() - new Date(p.stats!.timestamp).getTime();
     const latency = clientTimeElapsed - serverTimeElapsed;
     return latency >= 0 ? latency : 0;
   }
@@ -145,10 +150,10 @@ export default class RoomManager {
     this.serverSocket.to(this.roomId).emit('command', {data: pc});
   }
 
-  private broadcastRoomReady(players: Player[]): void {
+  private broadcastRoomReady(playes: Map<string, Player>): void {
     const enterRoomInfo = {
       players: this.players,
-      map: this.battlefieldMap;
+      map: this.battlefieldMap
     }
     this.serverSocket.to(this.roomId).emit('room-ready', {info:this.roomId, data: enterRoomInfo});
   }

@@ -1,18 +1,16 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
-import {loading, centralize, findBlock} from '../utils/engines';
+import {loading, centralize, findBlock, API_URL} from '../utils/engines';
 import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
-import * as dotenv from 'dotenv';
  
 
-dotenv.config();
 
 export default class Room extends Phaser.Scene {
   player: Player;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   infos: EnterRoomInfo;
   players: Player[] = [];
-  staticBlocks = this.physics.add.staticGroup();
+  staticBlocks: Phaser.Physics.Arcade.StaticGroup; 
   readonly FRAME_SIZE = 32;
   readonly socket = WebSocketService.getInstance();
 
@@ -22,12 +20,13 @@ export default class Room extends Phaser.Scene {
 
   init(infos: EnterRoomInfo): void {
     this.infos = infos;
+    this.staticBlocks = this.physics.add.staticGroup();
   }
 
   preload(): void {
     this.load.audio('explosion-sound', './assets/sounds/explosion.mp3');
     this.load.spritesheet('tiles', 
-      `${process.env.API_URL}/assets/${this.infos.map.tiles}/tiles-area01.png`, 
+      `${API_URL}/assets/${this.infos.map.tiles}/tiles-area01.png`, 
       {frameHeight: 32, frameWidth: 32});
     this.load.image(this.infos.map.background.key, 
       this.infos.map.background.url); 
@@ -35,11 +34,11 @@ export default class Room extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.spritesheet('chris', `${process.env.API_URL}/assets/characters/chris.png`, {
+    this.load.spritesheet('chris', `${API_URL}/assets/characters/chris.png`, {
       frameHeight: 32,
       frameWidth: 32
     }); 
-    this.load.spritesheet('cop', `${process.env.API_URL}/assets/characters/cop.png`, {
+    this.load.spritesheet('cop', `${API_URL}/assets/characters/cop.png`, {
       frameHeight: 32,
       frameWidth: 32
     }); 

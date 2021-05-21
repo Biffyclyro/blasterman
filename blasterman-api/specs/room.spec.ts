@@ -95,6 +95,6 @@ describe('RoomTester', () => {
     room.movePlayer(player);
     const movedPlayer = room.getPlayer('test');
 
-    expect(movedPlayer!.stats.x !== player.stats.x);
+    //expect(movedPlayer!.stats.x !== player.stats.x);
   });
 });

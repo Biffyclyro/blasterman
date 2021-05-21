@@ -5,7 +5,6 @@ import socketIO from "socket.io";
 import router from './utils/controllers';
 import {idGenerator, battleFieldMap} from './utils/engines';
 import {Player, PlayerCommand, Movement, isMovement} from './entities';
-import * as dotenv from 'dotenv';
 
 
 export interface ObjectDto<T> {
@@ -13,8 +12,7 @@ export interface ObjectDto<T> {
   data?: T;
 }
 
-dotenv.config();
-const port = process.env.API_PORT;
+const port = 8090 
 const app: express.Application = express();
 export const rooms = new Map<string, RoomManager>();
 

@@ -40,10 +40,12 @@ const config = {
   height: 768,
   scene: [Main, LoadingScreen, RoomManager],
   physics: {
-    default: 'arcade'
+    default: 'arcade',
+    arcade: {
+      debug: false
+    }
   } 
 }
 
 const game = new Phaser.Game(config);
 
-game.scale.autoCenter = Phaser.Scale.CENTER_BOTH;
