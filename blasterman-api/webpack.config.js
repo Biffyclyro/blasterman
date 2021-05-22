@@ -5,6 +5,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 module.exports = {
   entry: './src/server.ts',
   mode: 'production',
+  target: 'node',
   module: {
     rules: [
       {

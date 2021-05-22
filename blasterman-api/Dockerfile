@@ -19,6 +19,6 @@ FROM node:15.11.0-buster-slim
 
 ENV NODE_ENV=production
 
-COPY --from=BUILDER dist . 
+COPY --from=BUILDER dist /blasterman-api 
 
-CMD ["node", "."]
+CMD ["node", "/blasterman-api/game.min.js"]
