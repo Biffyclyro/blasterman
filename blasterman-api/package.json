@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/server.min.js",
   "scripts": {
-    "start": "node .",
+    "start": "node ./dist/game.min.js",
     "build": "npm run test && webpack",
     "build:dev": "webpack",
     "test": "jasmine-ts --config=jasmine.json"

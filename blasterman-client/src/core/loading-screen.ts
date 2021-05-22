@@ -15,7 +15,7 @@ export default class LoadingScreen extends Phaser.Scene {
   
   init(): void {
     loading(this);
-    this.socket.emit('enter-room');
+    this.socket.emit('enter-room', {});
     this.socket.on('enter-room', (res: ObjectDto<ServerPlayer>) => {
       this.localPlayer = res.data!; 
     });

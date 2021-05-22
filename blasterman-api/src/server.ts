@@ -27,9 +27,9 @@ app.use(express.static('assets'));
 const server = app.listen(port);
 
 const io = new socketIO.Server(server, {
-  path: '/teste',
+//  path: '/teste',
   cors: {
-    origin: process.env.CLIENT_URL,
+    origin: 'http://localhost:8000', 
     methods: ["GET", "POST"]
   }
 });
@@ -46,14 +46,14 @@ io.on("connection", socket => {
     if (!roomId) {
       roomId = `room-${idGenerator()}`;
     }
-    const room = rooms.get(roomId);
+    let room = rooms.get(roomId);
     const player = {
       playerId: socket.id
     }
 
     if(!room) {
-      const r = new RoomManager(io, roomId, battleFieldMap);
-      rooms.set(roomId, r);
+      room = new RoomManager(io, roomId, battleFieldMap);
+      rooms.set(roomId, room);
     }
     socket.join(roomId);
     room!.addPlayer(player);
