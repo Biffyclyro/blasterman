@@ -3,6 +3,8 @@ import {Entity, NearBlocks, SpriteWithId} from '../entities'
 
 export const API_URL = 'http://localhost:8090';
 
+export const clientDate = new Date();
+
 export const centralize = (e: Entity): Entity => {
   const difX = e.x % 32;
 

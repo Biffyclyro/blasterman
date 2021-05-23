@@ -42,9 +42,10 @@ io.engine.generateId = (req: any) => {
 io.on("connection", socket => {
   socket.on('enter-room', ( enterRequest: ObjectDto<string>) => {
 
-    let roomId = enterRequest.data;
+    let roomId = enterRequest.info;
+    console.log(roomId);
     if (!roomId) {
-      roomId = `room-${idGenerator()}`;
+      roomId = idGenerator();
     }
     let room = rooms.get(roomId);
     const player = {
@@ -56,7 +57,7 @@ io.on("connection", socket => {
       rooms.set(roomId, room);
     }
     socket.join(roomId);
-    room!.addPlayer(player);
+    room!.addPlayer(player, enterRequest.data!);
     console.log(`conecatado na sala ${roomId}`);
     const res = {
       info: roomId,

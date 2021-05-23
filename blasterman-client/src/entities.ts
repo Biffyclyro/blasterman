@@ -66,6 +66,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   scene: Room;
   alive = true;
   tamBomb = 2;
+  timestamp: string;
 
   constructor(scene: Room, {skin, playerId, stats:{x, y}}: ServerPlayer) {
     super(scene, x, y, skin);

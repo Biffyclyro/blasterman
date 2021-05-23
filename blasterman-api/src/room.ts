@@ -24,11 +24,11 @@ export default class RoomManager {
     this.emitter.on('explosion', this.explosionHandler.bind(this));
   }
 
-  addPlayer(p: Player): void {
+  addPlayer(p: Player, timestamp: string): void {
     if (!this.players.has(p.playerId) ) {
       p.moves = [];
       p.moves.push({
-        timestamp: p.stats!.timestamp, 
+        timestamp: timestamp,
         moving: false,
         direction: 1
       });

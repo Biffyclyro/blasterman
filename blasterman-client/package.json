@@ -2,11 +2,11 @@
   "name": "blasterman-client",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "game.js",
   "scripts": {
     "build:prod": "npm run test && webpack --env env=prod --output-path=docs/ && cp ./docs/index.html ./docs/404.html",
     "build:dev": "webpack --env env=dev",
-    "start": "node .",
+    "start": "node ./dist/game.js",
     "test": "jasmine-ts --config=jasmine.json"
   },
   "keywords": [],

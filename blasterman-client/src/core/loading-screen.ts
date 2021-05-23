@@ -1,23 +1,32 @@
 import 'phaser';
 import WebSocketService from '../services/websocket-service';
-import {loading} from '../utils/engines';
+import {loading, clientDate} from '../utils/engines';
 import {EnterRoomInfo, ObjectDto, ServerPlayer} from '../entities';
 import RoomManager from '../core/room';
 
 export default class LoadingScreen extends Phaser.Scene {
-  readonly socket = WebSocketService.getInstance();
+  private readonly socket = WebSocketService.getInstance();
   infos: EnterRoomInfo;
   localPlayer: ServerPlayer;
+  
 
   constructor() {
     super('LoadingScreen');
   }
   
-  init(): void {
+  init(data:{roomId: string}): void {
     loading(this);
-    this.socket.emit('enter-room', {});
-    this.socket.on('enter-room', (res: ObjectDto<ServerPlayer>) => {
+    const enterRequest: ObjectDto<string> = {data: clientDate.toISOString()};
+    console.log(data.roomId);
+    if(data.roomId !== '') {
+      enterRequest.info = data.roomId;
+    }
+    this.socket.emit('enter-room', enterRequest);
+    this.socket.on('message', (res: ObjectDto<ServerPlayer>) => {
       this.localPlayer = res.data!; 
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', res.info!);
+      window.history.pushState({}, '', url.href);
     });
   }
 

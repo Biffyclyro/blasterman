@@ -5,6 +5,7 @@ import RoomManager from './core/room';
 export default class Main extends Phaser.Scene {
   playButton: Phaser.GameObjects.Text;
   title: Phaser.GameObjects.Image;
+  url = window.location; 
 
   constructor() {
     super('Main');
@@ -19,6 +20,7 @@ export default class Main extends Phaser.Scene {
     .setOrigin(0, 0)
     .setDisplaySize(1000, 500);
 
+    
     this.playButton = this.add.text(600, 450, 'Play');
     this.playButton.setScale(3, 3);
     this.playButton.setInteractive();
@@ -28,7 +30,9 @@ export default class Main extends Phaser.Scene {
   }
 
   searchGame(): void {
-    this.scene.start('LoadingScreen');
+    let roomId = ''; 
+    if(this.url.search.slice(1)){ roomId = this.url.search.slice(6)}
+    this.scene.start('LoadingScreen', {roomId: roomId});
     this.title.destroy();
     this.playButton.destroy();
   }

@@ -40,7 +40,7 @@ describe('RoomTester', () => {
     //@ts-ignore
     room = new RoomManager(null, 'test', battleFieldMap);
     spyOn(room, 'broadcastUpdates');
-    room.addPlayer(player);
+    room.addPlayer(player, time.toISOString());
   });
 
   it('should create room', () => {

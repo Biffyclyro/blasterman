@@ -5,7 +5,7 @@ export const idGenerator = (): string => {
 }
 
 export const battleFieldMap = {
-  tiles: 'localhost:8080/tile-area01.png',
+  tiles: 'area01/tiles-area01.png',
   breakableBlocks: [
             {x:4, y:1},{x:5, y: 1}, {x:14, y:1},{x:21, y:1},{x:22, y:1},
             {x:5, y:2}, {x:7, y:2},{x:21, y:2},{x:23, y:2},
@@ -27,6 +27,6 @@ export const battleFieldMap = {
         ],
   background: {
     key: 'bg-area01',
-    url: 'localhost:8080/bg-area'
+    url: 'area01/bg-area01.jpg'
   }
 }

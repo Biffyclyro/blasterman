@@ -1,9 +1,8 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
-import {loading, centralize, findBlock, API_URL} from '../utils/engines';
+import {loading, centralize, findBlock, API_URL, clientDate} from '../utils/engines';
 import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
  
-
 
 export default class Room extends Phaser.Scene {
   player: Player;
@@ -13,6 +12,7 @@ export default class Room extends Phaser.Scene {
   staticBlocks: Phaser.Physics.Arcade.StaticGroup; 
   readonly FRAME_SIZE = 32;
   readonly socket = WebSocketService.getInstance();
+  private readonly localDate = clientDate;
 
   constructor() {
     super('Room');
@@ -26,19 +26,19 @@ export default class Room extends Phaser.Scene {
   preload(): void {
     this.load.audio('explosion-sound', './assets/sounds/explosion.mp3');
     this.load.spritesheet('tiles', 
-      `${API_URL}/assets/${this.infos.map.tiles}/tiles-area01.png`, 
+      `${API_URL}/${this.infos.map.tiles}`, 
       {frameHeight: 32, frameWidth: 32});
     this.load.image(this.infos.map.background.key, 
-      this.infos.map.background.url); 
+      `${API_URL}/${this.infos.map.background.url}`); 
     this.load.spritesheet('dynamite', './assets/dinamite.png',{
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.spritesheet('chris', `${API_URL}/assets/characters/chris.png`, {
+    this.load.spritesheet('chris', `${API_URL}/characters/chris.png`, {
       frameHeight: 32,
       frameWidth: 32
     }); 
-    this.load.spritesheet('cop', `${API_URL}/assets/characters/cop.png`, {
+    this.load.spritesheet('cop', `${API_URL}/characters/cop.png`, {
       frameHeight: 32,
       frameWidth: 32
     }); 
