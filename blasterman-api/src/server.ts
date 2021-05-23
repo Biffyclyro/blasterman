@@ -61,10 +61,7 @@ io.on("connection", socket => {
     console.log(`conecatado na sala ${roomId}`);
     const res = {
       info: roomId,
-      data: {
-        player: player,
-        map: battleFieldMap
-      }
+      data: player.playerId,
     };
     socket.send(res);
   });
@@ -91,4 +88,9 @@ io.on("connection", socket => {
       }
     }
   });
+
+  socket.on('ok', (okRequest: ObjectDto<string>) => {
+    const room = rooms.get(okRequest.info!);
+    room!.playerReady();
+  })
 });

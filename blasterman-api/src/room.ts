@@ -1,12 +1,13 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction} from './entities';
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo} from './entities';
 import {battleFieldMap} from './utils/engines'
 
 
 export default class RoomManager {
   private players: Map<string, Player> = new Map();
+  playersReady = 0;
   private readonly world: World;
   private readonly emitter = new EventEmitter();
   private readonly physics = new Physics(this.updateEntities.bind(this));  
@@ -39,25 +40,28 @@ export default class RoomManager {
         }
       }
       this.emitter.on('move_switch', p.moveSwitch); 
-      this.positionChooser(p);
+      this.positionChooser(p, timestamp);
       this.players.set(p.playerId, p); 
-      if(this.players.size === 2) {
-        this.broadcastRoomReady(this.players);
-      }
     }
   }
 
-  private positionChooser(p: Player): void {
-    if(p.stats){
-      if (this.players.size === 0) {
-        p.stats.x = 190;
-        p.stats.y = 48;
-        p.skin = 'cop';
-      } else {
-        p.stats.x = 1148;
-        p.stats.y = 554;
-        p.skin = 'rob';
-      }
+  private positionChooser(p: Player, timestamp: string): void {
+    const tempStats = {
+      x: 0,
+      y: 0,
+      timestamp: timestamp,
+      alive: true
+    }
+    if (this.players.size === 0) {
+      tempStats.x = 190;
+      tempStats.y = 48;
+      p.stats = tempStats;
+      p.skin = 'cop';
+    } else {
+      tempStats.x = 1148;
+      tempStats.y = 554;
+      p.stats = tempStats;
+      p.skin = 'chris';
     }
   }
 
@@ -150,11 +154,26 @@ export default class RoomManager {
     this.serverSocket.to(this.roomId).emit('command', {data: pc});
   }
 
+  playerReady(): void {
+    this.playersReady++;
+    if(this.playersReady ===2){
+      this.broadcastRoomReady(this.players);
+    }
+  }
+
   private broadcastRoomReady(playes: Map<string, Player>): void {
-    const enterRoomInfo = {
-      players: this.players,
+    const enterRoomInfo: EnterRoomInfo = {
+      players: [], 
       map: this.battlefieldMap
     }
-    this.serverSocket.to(this.roomId).emit('room-ready', {info:this.roomId, data: enterRoomInfo});
+    this.players.forEach((v, k) => {
+      enterRoomInfo.players.push(v);
+    });
+
+    console.log(enterRoomInfo);
+    this.serverSocket.to(this.roomId).emit('room-ready', {
+      info:this.roomId, 
+      data: enterRoomInfo
+    });
   }
 }

@@ -72,18 +72,17 @@ export default class Room extends Phaser.Scene {
       repeat: 0
     });
 
-    this.player = this.addEntity(new Player(this, this.infos.player!))
-    .setSize(9, 10)
-    .setOffset(8, 10);
-
-    this.infos.players.forEach(p => {
-      const player = this.addEntity(new Player(this, p))
-                .setSize(9, 10)
-                .setOffset(8, 10);
-      this.players.push(player);
-    });
-
     this.buildMap(this.infos.map);
+    this.infos.players.forEach(p => {
+      if(p.playerId === this.infos.playerId) {
+        this.player = this.addEntity( new Player(this, p))
+          .setSize(9 ,10)
+      } else {
+        const remotePlayer = this.addEntity(new Player(this, p))
+          .setSize(9, 10)
+        this.players.push(remotePlayer);
+      } 
+    });
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
@@ -304,7 +303,7 @@ export default class Room extends Phaser.Scene {
     for (const breakableBlock of bm.breakableBlocks) {
       this.staticBlocks.create(breakableBlock.x * this.FRAME_SIZE + offsetSide,
         breakableBlock.y * this.FRAME_SIZE + offsetUp,
-        'tiles', 8).id = 'b';
+        'tiles', 0).id = 'b';
     }
   }
 }

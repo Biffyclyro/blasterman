@@ -25,7 +25,7 @@ export interface ServerPlayer {
 }
 
 export interface EnterRoomInfo {
-  player?: ServerPlayer;
+  playerId?: string;
   players: ServerPlayer[]; 
   map: BattlefieldMap;
 }
@@ -74,6 +74,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.playerId = playerId;
     this.skin = skin!;
 
+    console.log(skin, this.skin);
     this.scene.anims.create({
       key: 'walk-side',
       frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 0, end: 3}),
@@ -128,11 +129,11 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (cursors.left.isDown) {
         this.setMovement(true, cursors.left.keyCode);
       } else if (cursors.right.isDown) {
-        this.setMovement(true, cursors.left.keyCode);
+        this.setMovement(true, cursors.right.keyCode);
       } else if (cursors.up.isDown) {
-        this.setMovement(true, cursors.left.keyCode);
+        this.setMovement(true, cursors.up.keyCode);
       } else if (cursors.down.isDown) {
-        this.setMovement(true, cursors.left.keyCode);
+        this.setMovement(true, cursors.down.keyCode);
       } else {
         this.setMovement(false);
       }

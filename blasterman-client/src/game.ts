@@ -51,5 +51,6 @@ const config = {
   } 
 }
 
-const game = new Phaser.Game(config);
+export const game = new Phaser.Game(config);
+
 
