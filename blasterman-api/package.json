@@ -4,9 +4,9 @@
   "description": "",
   "main": "dist/server.min.js",
   "scripts": {
-    "start": "node ./dist/game.min.js",
-    "build": "npm run test && webpack",
-    "build:dev": "webpack",
+    "start": "node ./dist/game.js",
+    "build:prod": "npm run test && webpack --env env=prod",
+    "build:dev": "webpack --env env=dev",
     "test": "jasmine-ts --config=jasmine.json"
   },
   "keywords": [],
