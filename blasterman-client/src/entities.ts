@@ -110,12 +110,17 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
+  teste(): void {
+
+      this.anims.play(`${this.skin}-dead`, true);
+  }
+
   die(): void {
     if(this.alive) {
-      if(this.moving){
-        this.moving = false;
-      }
-
+      this.alive = false;
+      this.moving = false;
+      this.setVelocity(0, 0);
+      this.anims.play(`${this.skin}-stand`, true);
       this.anims.play(`${this.skin}-dead`, true);
       this.once('animationcomplete', () => {
         this.destroy();
@@ -135,6 +140,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.setMovement(true, cursors.down.keyCode);
       } else {
         this.setMovement(false);
+      }
+      if(Phaser.Input.Keyboard.JustDown(cursors.space)){
+        this.scene.setBomb(this);
       }
     }
   }
@@ -165,8 +173,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           this.anims.play(`${this.skin}-walk-side`, true);
           this.setVelocityX(-180);
           break
+        default:
+          
       }
-    } else {
+    } else if (!this.moving && this.alive) {
       this.setVelocity(0, 0);
       this.anims.play(`${this.skin}-stand`, true);
     }

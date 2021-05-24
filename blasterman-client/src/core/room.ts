@@ -1,7 +1,7 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
-import {loading, centralize, findBlock, API_URL, clientDate} from '../utils/engines';
-import {NearBlocks, ObjectDto, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
+import {centralize, findBlock, API_URL, clientDate} from '../utils/engines';
+import {NearBlocks, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
  
 
 export default class Room extends Phaser.Scene {
@@ -71,15 +71,23 @@ export default class Room extends Phaser.Scene {
       frameRate: 15,
       repeat: 0
     });
+    this.anims.create({
+      key: 'destroy',
+      frames: this.anims.generateFrameNumbers('tiles', { start: 0, end: 6}),
+      frameRate: 15,
+      repeat: 0
+    });
 
     this.buildMap(this.infos.map);
     this.infos.players.forEach(p => {
       if(p.playerId === this.infos.playerId) {
         this.player = this.addEntity( new Player(this, p))
-                          .setSize(9, 20);
+                          .setSize(9, 24)
+                          .setOffset(8,10);
       } else {
         const remotePlayer = this.addEntity(new Player(this, p))
-                                 .setSize(9, 20);
+                                 .setSize(9, 24)
+                                 .setOffset(8, 10);
         this.players.push(remotePlayer);
       } 
     });
@@ -111,30 +119,30 @@ export default class Room extends Phaser.Scene {
     //corpo da explosão
     for (let i = 1; i <= corpo; i++) {
       e.explosionBody
-        .push(this.physics.add.sprite(x + 32 * i, y, 'block', 15));
+        .push(this.physics.add.sprite(x + 32 * i, y, 'tiles', 15));
 
       e.explosionBody
-        .push(this.physics.add.sprite(x, y - 32 * i, 'block', 15).setAngle(-90));
+        .push(this.physics.add.sprite(x, y - 32 * i, 'tiles', 15).setAngle(-90));
 
       e.explosionBody
-        .push(this.physics.add.sprite(x - 32 * i, y, 'block', 15).setAngle(-180));
+        .push(this.physics.add.sprite(x - 32 * i, y, 'tiles', 15).setAngle(-180));
 
       e.explosionBody
-        .push(this.physics.add.sprite(x, y + 32 * i, 'block', 15).setAngle(90));
+        .push(this.physics.add.sprite(x, y + 32 * i, 'tiles', 15).setAngle(90));
     }
 
     //explosão fim
     e.explosionEnd
-    .push(this.physics.add.sprite(x + 32 * tamBomb, y, 'block', 15));
+    .push(this.physics.add.sprite(x + 32 * tamBomb, y, 'tiles', 15));
 
     e.explosionEnd
-    .push(this.physics.add.sprite(x, y - 32 * tamBomb, 'block', 15).setAngle(-90));
+    .push(this.physics.add.sprite(x, y - 32 * tamBomb, 'tiles', 15).setAngle(-90));
 
     e.explosionEnd
-    .push(this.physics.add.sprite(x - 32 * tamBomb, y, 'block', 15).setAngle(-180));
+    .push(this.physics.add.sprite(x - 32 * tamBomb, y, 'tiles', 15).setAngle(-180));
 
     e.explosionEnd
-    .push(this.physics.add.sprite(x, y + 32 * tamBomb, 'block', 15).setAngle(90));
+    .push(this.physics.add.sprite(x, y + 32 * tamBomb, 'tiles', 15).setAngle(90));
   }
 
   renderExplosion(explosion: Explosion): void {
@@ -152,15 +160,13 @@ export default class Room extends Phaser.Scene {
         explosion.explosionBody[index].anims.play('explosion-side', true);
 
         if (this.player.alive
-          && this.physics.world.collide(explosion.explosionBody[index], this.player)) {
-
+          && world.collide(explosion.explosionBody[index], this.player)) {
           this.player.die();
         }
 
         this.players.forEach((p: Player) => {
           if (p.alive && world.collide(explosion.explosionBody[index], p)) {p.die();}
         });
-
         this.animateExplosion(index + 4, explosion);
       }
 
@@ -169,13 +175,12 @@ export default class Room extends Phaser.Scene {
         explosion.explosionEnd[index % 4].anims.play('explosion-end', true);
 
         if (this.player.alive
-          && this.physics.world.collide(explosion.explosionEnd[index % 4], this.player)) {
-
+          && world.collide(explosion.explosionEnd[index % 4], this.player)) {
           this.player.die();
         }
 
         this.players.forEach((p: Player) => {
-          if (p.alive && world.collide(explosion.explosionEnd[index % 4], p)) p.die();
+          if (p.alive && world.collide(explosion.explosionEnd[index % 4], p)) { p.die() }
         });
       }
     }
@@ -239,17 +244,26 @@ export default class Room extends Phaser.Scene {
 
     this.createExplosion(explosion, dinamite, p.tamBomb);
     this.physics.add.collider(dinamite, p);
+    this.physics.add.collider(dinamite, this.player);
     this.physics.add.collider(dinamite, this.staticBlocks);
     this.physics.add.collider(dinamite, dinamite);
 
-    dinamite.on('explosion', this.explode.bind(this));
+    //dinamite.on('explosion', this.explode.bind(this));
 
     dinamite.once('animationcomplete', () => {
-      dinamite.once('explode', () => {this.explode(nearBlocks)});
+      console.warn('entrou no evento de explosão')
+      this.explode(nearBlocks);
       dinamite.anims.play('explosion', true).once('animationcomplete', () => {
         dinamite.destroy();
       });
-      this.sound.add('explosion').play();
+      //this.sound.add('explosion').play();
+      if (this.player.alive && this.physics.world.collide(dinamite, this.player)) {
+        this.player.die();
+      }
+
+      this.players.forEach((p: Player) => {
+        if (p.alive && this.physics.world.collide(dinamite, p)) { p.die(); }
+      });
 
       this.renderExplosion(explosion);
 

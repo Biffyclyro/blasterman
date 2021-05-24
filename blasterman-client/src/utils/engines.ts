@@ -31,7 +31,6 @@ export const findBlock = (bloc: SpriteWithId,
     if (!v.r || bloc.x < v.r.x) {
       if (bloc.id == 'b') bloc.id = 'f';
       if (v.r && v.r.id == 'f') {
-        console.log('essa bosta n faze sentido')
         v.r.id = 'b';
       }
       v.r = bloc;
