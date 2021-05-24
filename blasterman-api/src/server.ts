@@ -91,6 +91,8 @@ io.on("connection", socket => {
 
   socket.on('ok', (okRequest: ObjectDto<string>) => {
     const room = rooms.get(okRequest.info!);
-    room!.playerReady();
+    if(room){
+      room!.playerReady();
+    }
   })
 });

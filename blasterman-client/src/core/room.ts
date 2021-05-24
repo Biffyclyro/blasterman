@@ -76,10 +76,10 @@ export default class Room extends Phaser.Scene {
     this.infos.players.forEach(p => {
       if(p.playerId === this.infos.playerId) {
         this.player = this.addEntity( new Player(this, p))
-          .setSize(9 ,10)
+                          .setSize(9, 20);
       } else {
         const remotePlayer = this.addEntity(new Player(this, p))
-          .setSize(9, 10)
+                                 .setSize(9, 20);
         this.players.push(remotePlayer);
       } 
     });

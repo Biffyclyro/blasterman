@@ -27,9 +27,8 @@ export default class LoadingScreen extends Phaser.Scene {
       const url = new URL(window.location.href);
       url.searchParams.set('room', res.info!);
       window.history.pushState({}, '', url.href);
-      this.socket.emit('ok', {info: enterRequest.info!});
+      this.socket.emit('ok', {info: res.info!});
     });
-
   }
 
   create(): void {

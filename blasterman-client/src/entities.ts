@@ -68,43 +68,42 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   tamBomb = 2;
   timestamp: string;
 
-  constructor(scene: Room, {skin, playerId, stats:{x, y}}: ServerPlayer) {
+  constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer) {
     super(scene, x, y, skin);
     this.scene = scene;
     this.playerId = playerId;
     this.skin = skin!;
 
-    console.log(skin, this.skin);
     this.scene.anims.create({
-      key: 'walk-side',
+      key: `${this.skin}-walk-side`,
       frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 0, end: 3}),
       frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
-      key: 'walk-up',
+      key: `${this.skin}-walk-up`,
       frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 4, end: 7}),
       frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
-      key: 'walk-down',
+      key: `${this.skin}-walk-down`,
       frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 8, end: 11}),
       frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
-      key: 'dead',
+      key: `${this.skin}-dead`,
       frames: this.scene.anims.generateFrameNumbers(this.skin, {start: 12, end: 17}),
       frameRate: 10,
       repeat: 0
     });
 
     this.scene.anims.create({
-      key: 'stand',
+      key: `${this.skin}-stand`,
       frames:[{key: this.skin, frame: 9}],
       frameRate: 10,
       repeat: -1
@@ -117,7 +116,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.moving = false;
       }
 
-      this.anims.play('dead', true);
+      this.anims.play(`${this.skin}-dead`, true);
       this.once('animationcomplete', () => {
         this.destroy();
       });
@@ -149,27 +148,27 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if(this.moving && this.alive){
       switch(this.direction) {
         case Direction.Up:
-          this.anims.play('walk-up', true);
+          this.anims.play(`${this.skin}-walk-up`, true);
           this.setVelocityY(-180);
           break
         case Direction.Down:
-          this.anims.play('walk-down', true);
+          this.anims.play(`${this.skin}-walk-down`, true);
           this.setVelocityY(180);
           break
         case Direction.Right:
           this.resetFlip();
-          this.anims.play('walk-side', true);
+          this.anims.play(`${this.skin}-walk-side`, true);
           this.setVelocityX(180);
           break
         case Direction.Left:
           this.setFlipX(true);
-          this.anims.play('walk-side', true);
+          this.anims.play(`${this.skin}-walk-side`, true);
           this.setVelocityX(-180);
           break
       }
     } else {
       this.setVelocity(0, 0);
-      this.anims.play('stand', true);
+      this.anims.play(`${this.skin}-stand`, true);
     }
   }
 }
