@@ -47,6 +47,7 @@ export default class Room extends Phaser.Scene {
   }
 
   create(): void {
+    this.sound.add('explosion-sound');
     this.anims.create({
       key: 'dynamite',
       frames: this.anims.generateFrameNumbers('dynamite', {start: 0, end: 10}),
@@ -256,7 +257,7 @@ export default class Room extends Phaser.Scene {
       dinamite.anims.play('explosion', true).once('animationcomplete', () => {
         dinamite.destroy();
       });
-      //this.sound.add('explosion').play();
+      this.sound.play('explosion-sound');
       if (this.player.alive && this.physics.world.collide(dinamite, this.player)) {
         this.player.die();
       }
