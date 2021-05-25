@@ -119,22 +119,22 @@ export default class RoomManager {
       const y = p.stats.y;
       if(move.moving){
         switch(move.direction) {
-          case 1:
+          case Direction.Right:
             if (!this.world.checkCollision({x:x + 1, y:y})){
               p.stats.x += this.VELOCITY;
             }
             break;
-          case 2:
+          case Direction.Left:
             if (!this.world.checkCollision({x:x - 1, y:y})){
               p.stats.x -= this.VELOCITY;
             }
             break;
-          case 3:
+          case Direction.Up:
             if (!this.world.checkCollision({x:x, y:y + 1})){
               p.stats.y += this.VELOCITY;
             }
             break;
-          case 4:
+          case Direction.Down:
             if (!this.world.checkCollision({x:x, y:y - 1})){
               p.stats.y -= this.VELOCITY;
             }
@@ -170,9 +170,9 @@ export default class RoomManager {
       enterRoomInfo.players.push(v);
     });
 
-    console.log(enterRoomInfo);
+    //console.log(enterRoomInfo);
     this.serverSocket.to(this.roomId).emit('room-ready', {
-      info:this.roomId, 
+      info: this.roomId, 
       data: enterRoomInfo
     });
   }

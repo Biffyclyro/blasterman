@@ -1,6 +1,6 @@
 import 'phaser';
 import Room from './core/room';
-import {centralize, findBlock} from './utils/engines';
+import {centralize, clientDate, findBlock} from './utils/engines';
 
 export enum Direction {
   Up = 38,
@@ -24,7 +24,20 @@ export interface ServerPlayer {
   stats: Status;
 }
 
+export interface Movement {
+  timestamp: string;
+  moving: boolean;
+  direction: Direction;
+}
+
+export interface PlayerCommand {
+  playerId: string;
+  command: Movement | Stampable;
+}
+
+
 export interface EnterRoomInfo {
+  roomId?: string;
   playerId?: string;
   players: ServerPlayer[]; 
   map: BattlefieldMap;
@@ -67,8 +80,9 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   alive = true;
   tamBomb = 2;
   timestamp: string;
+  moviments: Movement[];
 
-  constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer) {
+  constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer, local = true) {
     super(scene, x, y, skin);
     this.scene = scene;
     this.playerId = playerId;
@@ -110,11 +124,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  teste(): void {
-
-      this.anims.play(`${this.skin}-dead`, true);
-  }
-
   die(): void {
     if(this.alive) {
       this.alive = false;
@@ -147,9 +156,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  setMovement(moving: boolean, keyCode = 40): void {
-    this.direction = keyCode; 
-    this.moving = moving;
+  setMovement(moving: boolean, keyCode = 40, local=true): void {
+    if (moving != this.moving || keyCode != this.direction) {
+      this.direction = keyCode;
+      this.moving = moving;
+      if (local) {
+        this.scene.sendMovement(this.buildCommand());
+      }
+    }
   }
 
   move(): void {
@@ -180,5 +194,21 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocity(0, 0);
       this.anims.play(`${this.skin}-stand`, true);
     }
+  }
+
+  private buildCommand(): ObjectDto<PlayerCommand> {
+    const pc: PlayerCommand = {
+      playerId: this.playerId,
+      command: {
+        timestamp: clientDate.toISOString(),
+        moving: this.moving,
+        direction: this.direction
+      }
+    }
+    const dto: ObjectDto<PlayerCommand> = {
+      info: this.scene.infos.roomId,
+      data: pc
+    }
+    return dto;
   }
 }

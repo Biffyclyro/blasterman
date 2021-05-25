@@ -1,14 +1,25 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
 import {centralize, findBlock, API_URL, clientDate} from '../utils/engines';
-import {NearBlocks, Player, EnterRoomInfo, Explosion, Entity, BattlefieldMap, SpriteWithId} from '../entities';
+import {
+  NearBlocks, 
+  Player, 
+  EnterRoomInfo, 
+  Explosion, 
+  Entity, 
+  BattlefieldMap, 
+  SpriteWithId, 
+  PlayerCommand, 
+  ObjectDto,
+  Movement
+} from '../entities';
  
 
 export default class Room extends Phaser.Scene {
   player: Player;
   cursors: Phaser.Types.Input.Keyboard.CursorKeys;
   infos: EnterRoomInfo;
-  players: Player[] = [];
+  players = new Map<string, Player>();
   staticBlocks: Phaser.Physics.Arcade.StaticGroup; 
   readonly FRAME_SIZE = 32;
   readonly socket = WebSocketService.getInstance();
@@ -34,14 +45,13 @@ export default class Room extends Phaser.Scene {
       frameHeight: 32,
       frameWidth: 32
     });
-    this.load.spritesheet('chris', `${API_URL}/characters/chris.png`, {
-      frameHeight: 32,
-      frameWidth: 32
-    }); 
-    this.load.spritesheet('cop', `${API_URL}/characters/cop.png`, {
-      frameHeight: 32,
-      frameWidth: 32
-    }); 
+
+    this.infos.players.forEach(p => {
+      this.load.spritesheet(p.skin, 
+        `${API_URL}/characters/${p.skin}.png`, {
+          frameHeight: 32,
+          frameWidth: 32});
+    });
     
     this.events.emit('end-loading');
   }
@@ -89,16 +99,17 @@ export default class Room extends Phaser.Scene {
         const remotePlayer = this.addEntity(new Player(this, p))
                                  .setSize(9, 24)
                                  .setOffset(8, 10);
-        this.players.push(remotePlayer);
+        this.players.set(p.playerId, remotePlayer);
       } 
     });
+    this.socket.on('command', this.commandHandler.bind(this));
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   update(): void {
-    this.players.forEach(p => {
-      if(p != undefined && p.alive) {
-        p.move();
+    this.players.forEach((v, k) => {
+      if(v != undefined && v.alive) {
+        v.move();
       }
     });
 
@@ -106,6 +117,21 @@ export default class Room extends Phaser.Scene {
       this.player.localCommands(this.cursors);
       this.player.move();
     }
+  }
+
+  commandHandler(dtoCommand: ObjectDto<PlayerCommand>): void {
+    const id = dtoCommand.data!.playerId;
+    if (id && id !== this.player.playerId) {
+      const p = this.players.get(id);
+      const command = (dtoCommand.data!.command as Movement);
+      if (p) {
+        p.setMovement(command.moving, command.direction, false);
+      }
+    }
+  }
+
+  sendMovement(pc: ObjectDto<PlayerCommand>): void {
+    this.socket.emit('command', pc);
   }
 
   addEntity<T extends Phaser.GameObjects.GameObject>(e: T): T{

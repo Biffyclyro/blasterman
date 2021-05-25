@@ -3,10 +3,10 @@ import RoomManager from './room';
 import Quadtree from 'quadtree-lib';
 
 export enum Direction {
-  Up = 1,
-  Down,
-  Right,
-  Left,
+  Up = 38,
+  Down = 40,
+  Right = 39,
+  Left = 37,
 }
 
 export type Stampable  = {timestamp: string;} & Entity;

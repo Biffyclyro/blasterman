@@ -34,6 +34,7 @@ export default class LoadingScreen extends Phaser.Scene {
   create(): void {
     this.socket.on('room-ready', (res: ObjectDto<EnterRoomInfo>) => {
       this.infos = res.data!;
+      this.infos.roomId = res.info!;
       this.infos.playerId = this.localPlayerId;
       this.runGame();
     }); 
