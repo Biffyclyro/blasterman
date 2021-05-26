@@ -125,7 +125,9 @@ export default class Room extends Phaser.Scene {
       const p = this.players.get(id);
       const command = (dtoCommand.data!.command as Movement);
       if (p) {
-        p.setMovement(command.moving, command.direction, false);
+        p.moves.push(command);
+        const ms = this.latencyCalculator(command.timestamp, p);
+        p.moveSwitch(ms);
       }
     }
   }
@@ -346,5 +348,14 @@ export default class Room extends Phaser.Scene {
         breakableBlock.y * this.FRAME_SIZE + offsetUp,
         'tiles', 0).id = 'b';
     }
+  }
+
+  private latencyCalculator(t1: string, p: Player): number {
+    const first = new Date(t1);
+    const last = new Date(p.moves[0].timestamp);
+    const clientTimeElapsed = first.getTime() - last.getTime();
+    const serverTimeElapsed = clientDate.getTime() - new Date(p.timestamp).getTime();
+    const latency = clientTimeElapsed - serverTimeElapsed;
+    return latency >= 0 ? latency : 0;
   }
 }

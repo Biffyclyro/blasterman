@@ -80,7 +80,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   alive = true;
   tamBomb = 2;
   timestamp: string;
-  moviments: Movement[];
+  moves: Movement[] = [];
 
   constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer, local = true) {
     super(scene, x, y, skin);
@@ -164,6 +164,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.sendMovement(this.buildCommand());
       }
     }
+    console.warn(clientDate);
   }
 
   move(): void {
@@ -195,6 +196,14 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.anims.play(`${this.skin}-stand`, true);
     }
   }
+
+ async moveSwitch(latency: number): Promise<void> {
+          this.timestamp = clientDate.toISOString();
+          setTimeout( () => {
+            const movement = this.moves.pop();
+            this.setMovement(movement!.moving, movement!.direction, false);
+          }, latency);
+      }
 
   private buildCommand(): ObjectDto<PlayerCommand> {
     const pc: PlayerCommand = {
