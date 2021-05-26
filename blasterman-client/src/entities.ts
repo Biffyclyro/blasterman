@@ -164,7 +164,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         this.scene.sendMovement(this.buildCommand());
       }
     }
-    console.warn(clientDate);
   }
 
   move(): void {
