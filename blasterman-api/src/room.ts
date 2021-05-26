@@ -6,7 +6,7 @@ import {battleFieldMap} from './utils/engines'
 
 
 export default class RoomManager {
-  private players: Map<string, Player> = new Map();
+  players: Map<string, Player> = new Map();
   playersReady = 0;
   private readonly world: World;
   private readonly emitter = new EventEmitter();
@@ -31,12 +31,21 @@ export default class RoomManager {
       p.moves.push({
         timestamp: timestamp,
         moving: false,
-        direction: 1
+        direction: Direction.Down
       });
       p.moveSwitch = async (latency: number) => {
         if (p.moves) {
           p.stats!.timestamp = this.serverTime.toISOString();
-          setTimeout( p.moves.pop, latency);
+          setTimeout( () => {
+            p.moves!.shift()
+            if (p.moves?.length === 0) {
+              p.moves.push({
+                timestamp: timestamp,
+                moving: false,
+                direction: Direction.Down
+              })
+            }
+          }, latency);
         }
       }
       this.emitter.on('move_switch', p.moveSwitch); 
@@ -112,12 +121,11 @@ export default class RoomManager {
   }
 
   private async movePlayer(p: Player): Promise<void> {
-
     if(p.moves && p.stats) {
       const move = p.moves[0];
       const x = p.stats.x;
       const y = p.stats.y;
-      if(move.moving){
+      if(move && move.moving){
         switch(move.direction) {
           case Direction.Right:
             if (!this.world.checkCollision({x:x + 1, y:y})){

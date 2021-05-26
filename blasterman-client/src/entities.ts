@@ -188,7 +188,6 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
           this.setVelocityX(-180);
           break
         default:
-          
       }
     } else if (!this.moving && this.alive) {
       this.setVelocity(0, 0);
@@ -196,13 +195,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
- async moveSwitch(latency: number): Promise<void> {
-          this.timestamp = clientDate.toISOString();
-          setTimeout( () => {
-            const movement = this.moves.pop();
-            this.setMovement(movement!.moving, movement!.direction, false);
-          }, latency);
-      }
+  async moveSwitch(latency: number): Promise<void> {
+    this.timestamp = clientDate.toISOString();
+    setTimeout(() => {
+      const movement = this.moves.pop();
+      this.setMovement(movement!.moving, movement!.direction, false);
+    }, latency);
+  }
 
   private buildCommand(): ObjectDto<PlayerCommand> {
     const pc: PlayerCommand = {

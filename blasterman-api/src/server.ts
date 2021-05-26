@@ -94,5 +94,16 @@ io.on("connection", socket => {
     if(room){
       room!.playerReady();
     }
-  })
+  });
+
+  socket.on('get-game-state', (updateRequest: ObjectDto<any>) => {
+    const room = rooms.get(updateRequest.info!);
+    if (room) {
+      const res = {
+        info: 'update-state',
+        data: Array.from(room.players.values())
+      }
+      socket.send(res);
+    }
+  });
 });

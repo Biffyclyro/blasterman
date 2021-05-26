@@ -11,7 +11,8 @@ import {
   SpriteWithId, 
   PlayerCommand, 
   ObjectDto,
-  Movement
+  Movement,
+  ServerPlayer
 } from '../entities';
  
 
@@ -53,7 +54,16 @@ export default class Room extends Phaser.Scene {
           frameWidth: 32});
     });
     
-    this.events.emit('end-loading');
+    this.game.events.on('focus', () => {
+      this.socket.emit('get-game-state', {info: this.infos.roomId});
+    });
+
+    this.socket.on('message', (updateState: ObjectDto<ServerPlayer[]>) => {
+      if (updateState.info === 'update-state') {
+        console.log(updateState.data);
+        console.log(this.players.values());
+      }
+    });
   }
 
   create(): void {
@@ -91,7 +101,11 @@ export default class Room extends Phaser.Scene {
 
     this.buildMap(this.infos.map);
     this.infos.players.forEach(p => {
-      if(p.playerId === this.infos.playerId) {
+      const remotePlayer = this.addEntity(new Player(this, p))
+        .setSize(9, 24)
+        .setOffset(8, 10);
+      this.players.set(p.playerId, remotePlayer);
+    /*  if(p.playerId === this.infos.playerId) {
         this.player = this.addEntity( new Player(this, p))
                           .setSize(9, 24)
                           .setOffset(8,10);
@@ -100,28 +114,36 @@ export default class Room extends Phaser.Scene {
                                  .setSize(9, 24)
                                  .setOffset(8, 10);
         this.players.set(p.playerId, remotePlayer);
-      } 
+      }
+      */ 
     });
     this.socket.on('command', this.commandHandler.bind(this));
+    this.events.on('focus', () => {
+      console.log('pegou fogo')
+    });
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
   update(): void {
     this.players.forEach((v, k) => {
       if(v != undefined && v.alive) {
+        if (v.playerId === this.infos.playerId){
+          v.localCommands(this.cursors);
+        }
         v.move();
       }
     });
-
+/*
     if(this.player != undefined) {
-      this.player.localCommands(this.cursors);
+      this.player.
       this.player.move();
     }
+    */
   }
-
+  
   commandHandler(dtoCommand: ObjectDto<PlayerCommand>): void {
     const id = dtoCommand.data!.playerId;
-    if (id && id !== this.player.playerId) {
+    if (id && id !== this.infos.playerId) {
       const p = this.players.get(id);
       const command = (dtoCommand.data!.command as Movement);
       if (p) {
