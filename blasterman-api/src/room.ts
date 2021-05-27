@@ -128,23 +128,30 @@ export default class RoomManager {
       if(move && move.moving){
         switch(move.direction) {
           case Direction.Right:
-            if (!this.world.checkCollision({x:x + 1, y:y})){
+
+            console.log(this.world.battleField.colliding({x:x + 2.75, y:y}))
+            if (!this.world.checkCollision({x:x + this.VELOCITY, y:y})){
               p.stats.x += this.VELOCITY;
             }
             break;
           case Direction.Left:
-            if (!this.world.checkCollision({x:x - 1, y:y})){
+
+            console.log(this.world.battleField.colliding({x:x - 2.75 , y:y}))
+            if (!this.world.checkCollision({x:x - this.VELOCITY, y:y})){
               p.stats.x -= this.VELOCITY;
             }
             break;
           case Direction.Up:
-            if (!this.world.checkCollision({x:x, y:y - 1})){
+
+            console.log(this.world.battleField.colliding({x:x, y:y - 2.75}))
+            if (!this.world.checkCollision({x:x, y:y - this.VELOCITY})){
               p.stats.y -= this.VELOCITY;
             }
             break;
           case Direction.Down:
-            if (true){
-              console.log(this.world.battleField.colliding({x:x, y:y + 1}))
+
+            console.log(this.world.battleField.colliding({x:x, y:y + 2.75}))
+            if (!this.world.checkCollision({x:x, y:y + this.VELOCITY})){
               p.stats.y += this.VELOCITY;
             }
             break;

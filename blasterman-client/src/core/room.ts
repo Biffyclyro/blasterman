@@ -102,8 +102,7 @@ export default class Room extends Phaser.Scene {
     this.buildMap(this.infos.map);
     this.infos.players.forEach(p => {
       const remotePlayer = this.addEntity(new Player(this, p))
-        .setSize(9, 24)
-        .setOffset(8, 10);
+        .setSize(9, 24);
       this.players.set(p.playerId, remotePlayer);
     /*  if(p.playerId === this.infos.playerId) {
         this.player = this.addEntity( new Player(this, p))
@@ -207,11 +206,12 @@ export default class Room extends Phaser.Scene {
     if (explosion.explosionBody[index]) {
       if (!world.collide(explosion.explosionBody[index], this.staticBlocks)) {
         explosion.explosionBody[index].anims.play('explosion-side', true);
-
+        /*
         if (this.player.alive
           && world.collide(explosion.explosionBody[index], this.player)) {
           this.player.die();
         }
+        */
 
         this.players.forEach((p: Player) => {
           if (p.alive && world.collide(explosion.explosionBody[index], p)) {p.die();}
@@ -222,11 +222,12 @@ export default class Room extends Phaser.Scene {
     } else {
       if (!world.collide(explosion.explosionEnd[index % 4], this.staticBlocks)) {
         explosion.explosionEnd[index % 4].anims.play('explosion-end', true);
-
+        /*
         if (this.player.alive
           && world.collide(explosion.explosionEnd[index % 4], this.player)) {
           this.player.die();
         }
+        */
 
         this.players.forEach((p: Player) => {
           if (p.alive && world.collide(explosion.explosionEnd[index % 4], p)) { p.die() }
@@ -300,16 +301,15 @@ export default class Room extends Phaser.Scene {
     //dinamite.on('explosion', this.explode.bind(this));
 
     dinamite.once('animationcomplete', () => {
-      console.warn('entrou no evento de explosão')
       this.explode(nearBlocks);
       dinamite.anims.play('explosion', true).once('animationcomplete', () => {
         dinamite.destroy();
       });
-      this.sound.play('explosion-sound');
-      if (this.player.alive && this.physics.world.collide(dinamite, this.player)) {
+      //this.sound.play('explosion-sound');
+      /*if (this.player.alive && this.physics.world.collide(dinamite, this.player)) {
         this.player.die();
       }
-
+      */
       this.players.forEach((p: Player) => {
         if (p.alive && this.physics.world.collide(dinamite, p)) { p.die(); }
       });
