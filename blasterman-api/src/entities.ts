@@ -75,7 +75,7 @@ export class Dinamite  extends EventEmitter implements Entity{
 }
 
 export class World extends EventEmitter {
-  private readonly battleField: Quadtree<Entity> = new Quadtree({width:1024, height:544});
+  readonly battleField: Quadtree<Entity> = new Quadtree({width:1024, height:544});
   private readonly BLOCK_SIZE = 32;
 
   constructor(bm: BattlefieldMap) {
@@ -169,10 +169,24 @@ export class World extends EventEmitter {
   }
 
   private buildMap(bm: BattlefieldMap): void {
-    for(let i = 0; i< 31; i++) {
-      if(i % 2 === 0) {
-        for(let j = 2; j <= 16; j += 2) {
-          this.createBlock({x: i * this.BLOCK_SIZE ,y: j * this.BLOCK_SIZE, breakable: false});
+    const offsetSide = 160;
+    const offsetUp = 16;
+
+    for (let i = 0; i < 31; i++) {
+
+      this.createBlock({ x: i * this.BLOCK_SIZE + offsetSide, y: offsetUp, breakable: false });
+      this.createBlock({ x: i * this.BLOCK_SIZE + offsetSide, y: this.BLOCK_SIZE * 18 + offsetUp, breakable: false });
+
+      if (i < 19) {
+        //linha vertical quesquerda
+        this.createBlock({x: offsetSide, y:i * this.BLOCK_SIZE + offsetUp});
+        //linha vertical direita
+        this.createBlock({x: this.BLOCK_SIZE * 32 + offsetSide, y: i * this.BLOCK_SIZE + offsetUp});
+      }
+
+      if (i % 2 === 0) {
+        for (let j = 2; j <= 16; j += 2) {
+          this.createBlock({ x: i * this.BLOCK_SIZE, y: j * this.BLOCK_SIZE, breakable: false });
         }
       } 
     }

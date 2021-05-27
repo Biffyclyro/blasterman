@@ -11,7 +11,7 @@ export default class RoomManager {
   private readonly world: World;
   private readonly emitter = new EventEmitter();
   private readonly physics = new Physics(this.updateEntities.bind(this));  
-  private readonly VELOCITY = 2.6;
+  private readonly VELOCITY = 2.75;
   private readonly serverTime = new Date();
   private readonly serverSocket: Server;
   private readonly roomId: string;
@@ -138,13 +138,14 @@ export default class RoomManager {
             }
             break;
           case Direction.Up:
-            if (!this.world.checkCollision({x:x, y:y + 1})){
-              p.stats.y += this.VELOCITY;
+            if (!this.world.checkCollision({x:x, y:y - 1})){
+              p.stats.y -= this.VELOCITY;
             }
             break;
           case Direction.Down:
-            if (!this.world.checkCollision({x:x, y:y - 1})){
-              p.stats.y -= this.VELOCITY;
+            if (true){
+              console.log(this.world.battleField.colliding({x:x, y:y + 1}))
+              p.stats.y += this.VELOCITY;
             }
             break;
         }

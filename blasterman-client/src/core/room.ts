@@ -118,13 +118,10 @@ export default class Room extends Phaser.Scene {
       */ 
     });
     this.socket.on('command', this.commandHandler.bind(this));
-    this.events.on('focus', () => {
-      console.log('pegou fogo')
-    });
     this.cursors = this.input.keyboard.createCursorKeys();
   }
 
-  update(): void {
+  update(time: number, delta: number): void {
     this.players.forEach((v, k) => {
       if(v != undefined && v.alive) {
         if (v.playerId === this.infos.playerId){
@@ -133,6 +130,7 @@ export default class Room extends Phaser.Scene {
         v.move();
       }
     });
+    
 /*
     if(this.player != undefined) {
       this.player.
