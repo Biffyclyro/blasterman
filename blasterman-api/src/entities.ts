@@ -169,8 +169,8 @@ export class World extends EventEmitter {
   }
 
   private buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 144;
-    const offsetUp = 0;
+    const offsetSide = 160;
+    const offsetUp = 16;
 
     for (let i = 0; i < 33; i++) {
 
@@ -179,14 +179,14 @@ export class World extends EventEmitter {
 
       if (i < 19) {
         //linha vertical quesquerda
-        this.createBlock({x: offsetSide, y:i * this.BLOCK_SIZE + offsetUp});
+        this.createBlock({x: offsetSide, y: i * this.BLOCK_SIZE + offsetUp, breakable: false});
         //linha vertical direita
-        this.createBlock({x: this.BLOCK_SIZE * 32 + offsetSide, y: i * this.BLOCK_SIZE + offsetUp});
+        this.createBlock({x: this.BLOCK_SIZE * 32 + offsetSide, y: i * this.BLOCK_SIZE + offsetUp, breakable: false});
       }
 
       if (i % 2 === 0) {
         for (let j = 2; j <= 16; j += 2) {
-          this.createBlock({ x: i * this.BLOCK_SIZE, y: j * this.BLOCK_SIZE, breakable: false });
+          this.createBlock({ x: i * this.BLOCK_SIZE + offsetSide, y: j * this.BLOCK_SIZE + offsetUp, breakable: false });
         }
       } 
     }
@@ -209,6 +209,16 @@ export class World extends EventEmitter {
     if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
       return true
     } else { return false}
+  }
+
+  getCampo(): Entity[]{
+    const cords:Entity[] = [];
+
+    this.battleField.each(b => {
+      cords.push({x: b.x, y:b.y});
+    });
+
+    return cords;
   }
 }
 

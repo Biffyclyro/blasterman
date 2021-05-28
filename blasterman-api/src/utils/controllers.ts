@@ -1,4 +1,5 @@
 import express from 'express';
+import { Entity } from '../entities';
 import {ObjectDto, rooms} from '../server'; 
 import {idGenerator} from './engines';
 
@@ -13,9 +14,13 @@ router.get('/connect-server', async (req: express.Request,
 
 router.get('/rooms-list', async (req: express.Request,
                                  res: express.Response) => {
-  const roomsIds = Array.from(rooms.keys()); 
-  
-  const dto: ObjectDto<string[]> = {info: 'roomsIds', data: roomsIds};
+  const roomsMap = Array.from(rooms.values()); 
+
+  const mapas: {campo:Entity[]}[] =[];   
+
+  roomsMap.forEach(bbb => mapas.push({campo: bbb.getCampo()}));
+
+  const dto = mapas;
 
   res.send(dto);
   

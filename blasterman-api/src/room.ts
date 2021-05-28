@@ -1,8 +1,8 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo} from './entities';
-import {battleFieldMap} from './utils/engines'
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
+import {battleFieldMap, movementPredictor} from './utils/engines'
 
 
 export default class RoomManager {
@@ -58,6 +58,8 @@ export default class RoomManager {
     const tempStats = {
       x: 0,
       y: 0,
+      width: 16,
+      height: 22,
       timestamp: timestamp,
       alive: true
     }
@@ -126,32 +128,34 @@ export default class RoomManager {
       const x = p.stats.x;
       const y = p.stats.y;
       if(move && move.moving){
+        const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
+        console.log(futurePos)
         switch(move.direction) {
           case Direction.Right:
 
-            console.log(this.world.battleField.colliding({x:x + 2.75, y:y}))
-            if (!this.world.checkCollision({x:x + this.VELOCITY, y:y})){
+            console.log(this.world.battleField.colliding(futurePos))
+            if (!this.world.checkCollision({x:x + this.VELOCITY, y:y, width: 16, height: 22})){
               p.stats.x += this.VELOCITY;
             }
             break;
           case Direction.Left:
 
-            console.log(this.world.battleField.colliding({x:x - 2.75 , y:y}))
-            if (!this.world.checkCollision({x:x - this.VELOCITY, y:y})){
+            console.log(this.world.battleField.colliding(futurePos))
+            if (!this.world.checkCollision({x:x - this.VELOCITY, y:y, width: 16, height: 22})){
               p.stats.x -= this.VELOCITY;
             }
             break;
           case Direction.Up:
 
-            console.log(this.world.battleField.colliding({x:x, y:y - 2.75}))
-            if (!this.world.checkCollision({x:x, y:y - this.VELOCITY})){
+            console.log(this.world.battleField.colliding(futurePos))
+            if (!this.world.checkCollision({x:x, y:y - this.VELOCITY, width: 16, height: 22})){
               p.stats.y -= this.VELOCITY;
             }
             break;
           case Direction.Down:
 
-            console.log(this.world.battleField.colliding({x:x, y:y + 2.75}))
-            if (!this.world.checkCollision({x:x, y:y + this.VELOCITY})){
+            console.log(this.world.battleField.colliding(futurePos))
+            if (!this.world.checkCollision({x:x, y:y + this.VELOCITY, width: 16, height: 22})){
               p.stats.y += this.VELOCITY;
             }
             break;
@@ -175,6 +179,10 @@ export default class RoomManager {
     if(this.playersReady ===2){
       this.broadcastRoomReady(this.players);
     }
+  }
+  
+  getCampo(): Entity[] {
+    return this.world.getCampo();
   }
 
   private broadcastRoomReady(playes: Map<string, Player>): void {

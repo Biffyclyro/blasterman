@@ -17,12 +17,12 @@ const app: express.Application = express();
 export const rooms = new Map<string, RoomManager>();
 
 app.use(express.json());
-const corsOptions = {
+/*const corsOptions = {
   origin: '*',
 }
-
+*/
 app.use(cors());
-app.use('/', router);
+app.use(router);
 app.use(express.static('assets'));
 const server = app.listen(port);
 

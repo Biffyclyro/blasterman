@@ -1,7 +1,26 @@
 import {v4 as uuid} from 'uuid';
+import { Direction, Entity } from '../entities';
 
 export const idGenerator = (): string => {
   return uuid(); 
+}
+
+export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
+  switch (d) {
+    case Direction.Down:
+      y += v;
+      break;
+    case Direction.Up:
+      y -= v;
+      break;
+    case Direction.Left:
+      x -= v;
+      break;
+    case Direction.Right:
+      x += v;
+      break;
+  }
+  return {x:x, y:y, width: 16, height: 22 };
 }
 
 export const battleFieldMap = {

@@ -167,27 +167,26 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   move(): void {
-    if(this.moving && this.alive){
-      switch(this.direction) {
+    if (this.moving && this.alive) {
+      switch (this.direction) {
         case Direction.Up:
           this.anims.play(`${this.skin}-walk-up`, true);
           this.setVelocityY(-180);
-          break
+          break;
         case Direction.Down:
           this.anims.play(`${this.skin}-walk-down`, true);
           this.setVelocityY(180);
-          break
+          break;
         case Direction.Right:
           this.resetFlip();
           this.anims.play(`${this.skin}-walk-side`, true);
           this.setVelocityX(180);
-          break
+          break;
         case Direction.Left:
           this.setFlipX(true);
           this.anims.play(`${this.skin}-walk-side`, true);
           this.setVelocityX(-180);
-          break
-        default:
+          break;
       }
     } else if (!this.moving && this.alive) {
       this.setVelocity(0, 0);

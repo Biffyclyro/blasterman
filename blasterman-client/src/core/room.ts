@@ -102,7 +102,7 @@ export default class Room extends Phaser.Scene {
     this.buildMap(this.infos.map);
     this.infos.players.forEach(p => {
       const remotePlayer = this.addEntity(new Player(this, p))
-        .setSize(9, 24);
+        .setSize(16, 22);
       this.players.set(p.playerId, remotePlayer);
     /*  if(p.playerId === this.infos.playerId) {
         this.player = this.addEntity( new Player(this, p))
@@ -118,6 +118,11 @@ export default class Room extends Phaser.Scene {
     });
     this.socket.on('command', this.commandHandler.bind(this));
     this.cursors = this.input.keyboard.createCursorKeys();
+    
+    console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
+      const teste = (e as Phaser.GameObjects.Sprite)
+      return {x:teste.x, y:teste.y};
+    })));
   }
 
   update(time: number, delta: number): void {
@@ -128,7 +133,7 @@ export default class Room extends Phaser.Scene {
         }
         v.move();
       }
-    });
+    })
     
 /*
     if(this.player != undefined) {
