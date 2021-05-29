@@ -61,7 +61,15 @@ export default class Room extends Phaser.Scene {
     this.socket.on('message', (updateState: ObjectDto<ServerPlayer[]>) => {
       if (updateState.info === 'update-state') {
         console.log(updateState.data);
-        console.log(this.players.values());
+        updateState.data?.forEach(sp => {
+          const p = this.players.get(sp.playerId);
+          if (p){
+            p.x = sp.stats.x;
+            p.y = sp.stats.y;
+          }
+
+
+        });
       }
     });
   }

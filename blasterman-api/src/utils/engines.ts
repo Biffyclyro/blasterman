@@ -20,7 +20,7 @@ export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Enti
       x += v;
       break;
   }
-  return {x:x, y:y, width: 16, height: 22 };
+  return {x:x, y:y, width: 13, height: 22 };
 }
 
 export const battleFieldMap = {

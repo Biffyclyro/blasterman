@@ -129,33 +129,32 @@ export default class RoomManager {
       const y = p.stats.y;
       if(move && move.moving){
         const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
-        console.log(futurePos)
         switch(move.direction) {
           case Direction.Right:
 
-            console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision({x:x + this.VELOCITY, y:y, width: 16, height: 22})){
+            console.log(this.world.checkCollision(futurePos))
+            if (!this.world.checkCollision(futurePos)){
               p.stats.x += this.VELOCITY;
             }
             break;
           case Direction.Left:
 
-            console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision({x:x - this.VELOCITY, y:y, width: 16, height: 22})){
+            console.log(this.world.checkCollision(futurePos))
+            if (!this.world.checkCollision(futurePos)){
               p.stats.x -= this.VELOCITY;
             }
             break;
           case Direction.Up:
 
-            console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision({x:x, y:y - this.VELOCITY, width: 16, height: 22})){
+            console.log(this.world.checkCollision(futurePos))
+            if (!this.world.checkCollision(futurePos)){
               p.stats.y -= this.VELOCITY;
             }
             break;
           case Direction.Down:
 
-            console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision({x:x, y:y + this.VELOCITY, width: 16, height: 22})){
+            console.log(this.world.checkCollision(futurePos))
+            if (!this.world.checkCollision(futurePos)){
               p.stats.y += this.VELOCITY;
             }
             break;
