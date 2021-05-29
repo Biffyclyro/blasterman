@@ -128,7 +128,7 @@ export default class RoomManager {
       const x = p.stats.x;
       const y = p.stats.y;
       if(move && move.moving){
-        const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
+        const futurePos = movementPredictor(p.stats, move.direction, 2);
         switch(move.direction) {
           case Direction.Right:
 

@@ -169,8 +169,8 @@ export class World extends EventEmitter {
   }
 
   private buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 149.80;
-    const offsetUp = 12;
+    const offsetSide = 150;
+    const offsetUp = 10;
 
     for (let i = 0; i < 33; i++) {
 

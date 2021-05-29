@@ -40,7 +40,7 @@ export default class Main extends Phaser.Scene {
 
 const config = {
   type: Phaser.CANVAS,
-  width:1366,
+  width: 1366,
   height: 768,
   scene: [Main, LoadingScreen, RoomManager],
   physics: {
@@ -52,5 +52,3 @@ const config = {
 }
 
 export const game = new Phaser.Game(config);
-
-

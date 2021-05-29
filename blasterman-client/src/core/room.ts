@@ -67,8 +67,6 @@ export default class Room extends Phaser.Scene {
             p.x = sp.stats.x;
             p.y = sp.stats.y;
           }
-
-
         });
       }
     });
@@ -126,7 +124,6 @@ export default class Room extends Phaser.Scene {
     });
     this.socket.on('command', this.commandHandler.bind(this));
     this.cursors = this.input.keyboard.createCursorKeys();
-    
     console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
       const teste = (e as Phaser.GameObjects.Sprite)
       return {x:teste.x, y:teste.y};
@@ -341,7 +338,7 @@ export default class Room extends Phaser.Scene {
   }
 
   buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 160;
+    const offsetSide = 161;
     const offsetUp = 16;
 
     this.add.image(offsetSide, offsetUp, bm.background.key)

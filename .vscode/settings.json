@@ -1,8 +1,0 @@
-{
-    "vim.enableNeovim": true,
-    "vim.handleKeys": {
-
-        "<C-d>": true,
-        "<u>": false
-    }
-}
