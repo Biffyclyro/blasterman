@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
-import {battleFieldMap, movementPredictor} from './utils/engines'
+import {battleFieldMap, movementPredictor, verifyPositionTolerance} from './utils/engines'
 
 
 export default class RoomManager {
@@ -80,21 +80,41 @@ export default class RoomManager {
     return this.players.get(playerId); 
   }
 
-  addMove({playerId, command}: PlayerCommand): void {
+  addMove({playerId, command, position}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
       const movement = (command as Movement);
       const ms = this.latencyCalculator(movement.timestamp, p);
       p.moves!.push(movement);
       this.emitter.emit('move_switch', ms);
-      this.broadcastUpdates({playerId: playerId, command: command});
+
+      if (verifyPositionTolerance(position)) {
+        p.stats!.x = position.x;
+        p.stats!.y = position.y;
+      } else {
+        position.x = p.stats!.x;
+        position.y = p.stats!.y;
+      }
+
+      this.broadcastUpdates({
+        playerId: playerId, 
+        command: command,
+        position: position
+      });
     }
   }
 
   setBomb(bomb: Stampable, p: Player): void {
     const ms = this.latencyCalculator(bomb.timestamp, p);
     this.world.setDinamite(bomb.x,bomb.y, ms);
-    this.broadcastUpdates({playerId: p.playerId, command: bomb});
+    this.broadcastUpdates({
+      playerId: p.playerId, 
+      command: bomb,
+      position: {
+        x: p.stats!.x,
+        y: p.stats!.y
+      }
+    });
   }
 
   private affectedByExplosion(p: Player): void {

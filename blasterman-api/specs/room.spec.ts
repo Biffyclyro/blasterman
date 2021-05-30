@@ -34,7 +34,11 @@ describe('RoomTester', () => {
 
     movement = {
       playerId: 'test', 
-      command: com 
+      command: com,
+      position: {
+        x: 0,
+        y: 0
+      }
     }
     
     //@ts-ignore

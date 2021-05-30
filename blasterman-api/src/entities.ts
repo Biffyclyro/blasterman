@@ -33,6 +33,7 @@ export interface Movement {
 export interface PlayerCommand {
   playerId: string;
   command: Movement | Stampable;
+  position: Entity;
 }
 
 export interface Player {
@@ -76,7 +77,7 @@ export class Dinamite  extends EventEmitter implements Entity{
 
 export class World extends EventEmitter {
   readonly battleField: Quadtree<Entity> = new Quadtree({width:1366, height:768});
-  private readonly BLOCK_SIZE = 32;
+  private readonly BLOCK_SIZE = 31;
 
   constructor(bm: BattlefieldMap) {
     super();
@@ -169,8 +170,8 @@ export class World extends EventEmitter {
   }
 
   private buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 150;
-    const offsetUp = 10;
+    const offsetSide = 154.5;
+    const offsetUp = 14;
 
     for (let i = 0; i < 33; i++) {
 

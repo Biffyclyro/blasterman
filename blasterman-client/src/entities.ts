@@ -33,6 +33,7 @@ export interface Movement {
 export interface PlayerCommand {
   playerId: string;
   command: Movement | Stampable;
+  position: Entity;
 }
 
 
@@ -210,6 +211,10 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         timestamp: clientDate.toISOString(),
         moving: this.moving,
         direction: this.direction
+      },
+      position: {
+        x: this.x,
+        y: this.y
       }
     }
     const dto: ObjectDto<PlayerCommand> = {

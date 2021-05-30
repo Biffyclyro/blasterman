@@ -5,22 +5,32 @@ export const idGenerator = (): string => {
   return uuid(); 
 }
 
+export const verifyPositionTolerance = ({x, y}: Entity): boolean => {
+  return Math.abs(x) <= 5 && Math.abs(y) <= 5;
+}
+
 export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
+  let h = 0;
+  let w = 0;
   switch (d) {
     case Direction.Down:
       y += v;
+      h = 16;
       break;
     case Direction.Up:
       y -= v;
+      h = 16;
       break;
     case Direction.Left:
       x -= v;
+      h = 16;
       break;
     case Direction.Right:
       x += v;
+      h = 16;
       break;
   }
-  return {x:x, y:y, width: 13, height: 22 };
+  return {x:x, y:y, height: h, width: w};
 }
 
 export const battleFieldMap = {
