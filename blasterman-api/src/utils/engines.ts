@@ -5,8 +5,8 @@ export const idGenerator = (): string => {
   return uuid(); 
 }
 
-export const verifyPositionTolerance = ({x, y}: Entity): boolean => {
-  return Math.abs(x) <= 5 && Math.abs(y) <= 5;
+export const verifyPositionTolerance = ({x, y}: Entity, position: Entity): boolean => {
+  return Math.abs(x - position.x) <= 0 && Math.abs(y - position.y) <= 0;
 }
 
 export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
@@ -15,22 +15,23 @@ export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Enti
   switch (d) {
     case Direction.Down:
       y += v;
-      h = 16;
+      w = 16;
       break;
     case Direction.Up:
       y -= v;
-      h = 16;
+      w = 16;
       break;
     case Direction.Left:
       x -= v;
-      h = 16;
+      h = 22;
       break;
     case Direction.Right:
       x += v;
-      h = 16;
+      h = 22;
       break;
   }
-  return {x:x, y:y, height: h, width: w};
+
+  return {x: Math.round(x), y: Math.round(y), height: h, width: w};
 }
 
 export const battleFieldMap = {

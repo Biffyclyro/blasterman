@@ -88,7 +88,7 @@ export default class RoomManager {
       p.moves!.push(movement);
       this.emitter.emit('move_switch', ms);
 
-      if (verifyPositionTolerance(position)) {
+      if (verifyPositionTolerance(position, p.stats!)) {
         p.stats!.x = position.x;
         p.stats!.y = position.y;
       } else {
@@ -152,30 +152,34 @@ export default class RoomManager {
         switch(move.direction) {
           case Direction.Right:
 
-            console.log(this.world.checkCollision(futurePos))
+            console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.x += this.VELOCITY;
+              p.stats.x = Math.round(p.stats.x);
             }
             break;
           case Direction.Left:
 
-            console.log(this.world.checkCollision(futurePos))
+            console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.x -= this.VELOCITY;
+              p.stats.x = Math.round(p.stats.x);
             }
             break;
           case Direction.Up:
 
-            console.log(this.world.checkCollision(futurePos))
+            console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.y -= this.VELOCITY;
+              p.stats.y = Math.round(p.stats.y);
             }
             break;
           case Direction.Down:
 
-            console.log(this.world.checkCollision(futurePos))
+            console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.y += this.VELOCITY;
+              p.stats.y = Math.round(p.stats.y);
             }
             break;
         }

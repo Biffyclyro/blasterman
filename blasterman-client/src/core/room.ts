@@ -354,21 +354,21 @@ export default class Room extends Phaser.Scene {
 
     for (let i = 0; i < 33; i++) {
       //linha horizontal superior
-      this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, offsetUp, 'tiles', 7)
+      this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, offsetUp, 'tiles', 7);
 
       //linha horizontal inferior
-      this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, 18 * this.FRAME_SIZE + offsetUp, 'tiles', 7)
+      this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, 18 * this.FRAME_SIZE + offsetUp, 'tiles', 7);
 
       if (i < 19) {
         //linha vertical quesquerda
-        this.staticBlocks.create(offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7)
+        this.staticBlocks.create(offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7);
         //linha vertical direita
-        this.staticBlocks.create(this.FRAME_SIZE * 32 + offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7)
+        this.staticBlocks.create(this.FRAME_SIZE * 32 + offsetSide, i * this.FRAME_SIZE + offsetUp, 'tiles', 7);
       }
       //blocos indestrutíveis internos
       if (i % 2 === 0) {
         for (let j = 2; j <= 16; j += 2) {
-          this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, j * this.FRAME_SIZE + offsetUp, 'tiles', 7)
+          this.staticBlocks.create(this.FRAME_SIZE * i + offsetSide, j * this.FRAME_SIZE + offsetUp, 'tiles', 7);
         }
       }
     }

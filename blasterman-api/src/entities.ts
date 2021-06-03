@@ -77,7 +77,7 @@ export class Dinamite  extends EventEmitter implements Entity{
 
 export class World extends EventEmitter {
   readonly battleField: Quadtree<Entity> = new Quadtree({width:1366, height:768});
-  private readonly BLOCK_SIZE = 31;
+  private readonly BLOCK_SIZE = 32;
 
   constructor(bm: BattlefieldMap) {
     super();
@@ -170,8 +170,8 @@ export class World extends EventEmitter {
   }
 
   private buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 154.5;
-    const offsetUp = 14;
+    const offsetSide = 136;
+    const offsetUp = 11;
 
     for (let i = 0; i < 33; i++) {
 
