@@ -9,6 +9,10 @@ export const verifyPositionTolerance = ({x, y}: Entity, position: Entity): boole
   return Math.abs(x - position.x) <= 0 && Math.abs(y - position.y) <= 0;
 }
 
+export const differenceFinder = (a: number, b: number ): number => {
+  return Math.abs(a - b) 
+}
+
 export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
   let h = 0;
   let w = 0;
@@ -31,7 +35,7 @@ export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Enti
       break;
   }
 
-  return {x: Math.round(x), y: Math.round(y), height: h, width: w};
+  return {x: Math.round(x), y: Math.round(y), width: 16, height: 22};
 }
 
 export const battleFieldMap = {

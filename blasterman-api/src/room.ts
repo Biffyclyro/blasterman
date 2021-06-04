@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
-import {battleFieldMap, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import {battleFieldMap, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
 
 
 export default class RoomManager {
@@ -155,15 +155,20 @@ export default class RoomManager {
             console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.x += this.VELOCITY;
-              p.stats.x = Math.round(p.stats.x);
+            } else {
+              const block = this.world.battleField.colliding(futurePos).pop()
+              p.stats.x += differenceFinder(p.stats.x, block!.x) - 16 
             }
+
             break;
           case Direction.Left:
 
             console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.x -= this.VELOCITY;
-              p.stats.x = Math.round(p.stats.x);
+            } else {
+              const block = this.world.battleField.colliding(futurePos).pop()
+              p.stats.x -= differenceFinder(p.stats.x, block!.x) - 32
             }
             break;
           case Direction.Up:
@@ -171,7 +176,9 @@ export default class RoomManager {
             console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.y -= this.VELOCITY;
-              p.stats.y = Math.round(p.stats.y);
+            } else {
+              const block = this.world.battleField.colliding(futurePos).pop()
+              p.stats.y -= differenceFinder(p.stats.y, block!.y) - 32
             }
             break;
           case Direction.Down:
@@ -179,10 +186,15 @@ export default class RoomManager {
             console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)){
               p.stats.y += this.VELOCITY;
-              p.stats.y = Math.round(p.stats.y);
+            } else {
+              const block = this.world.battleField.colliding(futurePos).pop()
+              p.stats.y += differenceFinder(p.stats.y, block!.y) - 22
             }
             break;
         }
+
+        p.stats.x = Math.round(p.stats.x);
+        p.stats.y = Math.round(p.stats.y);
        this.affectedByExplosion(p); 
       }
     }
