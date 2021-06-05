@@ -6,11 +6,22 @@ export const idGenerator = (): string => {
 }
 
 export const verifyPositionTolerance = ({x, y}: Entity, position: Entity): boolean => {
-  return Math.abs(x - position.x) <= 0 && Math.abs(y - position.y) <= 0;
+  return Math.abs(x - position.x) <= 27 && Math.abs(y - position.y) <= 27;
 }
 
 export const differenceFinder = (a: number, b: number ): number => {
   return Math.abs(a - b) 
+}
+
+export const inversor = (entity:Entity, input: boolean = true): Entity => {
+  if (input) {
+    entity.x -= 8 
+    entity.y -= 10
+  } else {
+    entity.x += 8
+    entity.y += 10 
+  }
+  return entity;
 }
 
 export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
@@ -35,7 +46,7 @@ export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Enti
       break;
   }
 
-  return {x: Math.round(x), y: Math.round(y), width: 16, height: 22};
+  return {x: x, y: y, width: 16, height: 22};
 }
 
 export const battleFieldMap = {

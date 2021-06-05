@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
-import {battleFieldMap, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import {battleFieldMap, differenceFinder, inversor, movementPredictor, verifyPositionTolerance} from './utils/engines'
 
 
 export default class RoomManager {
@@ -99,7 +99,7 @@ export default class RoomManager {
       this.broadcastUpdates({
         playerId: playerId, 
         command: command,
-        position: position
+        position: position 
       });
     }
   }
@@ -148,7 +148,7 @@ export default class RoomManager {
       const x = p.stats.x;
       const y = p.stats.y;
       if(move && move.moving){
-        const futurePos = movementPredictor(p.stats, move.direction, 2);
+        const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
         switch(move.direction) {
           case Direction.Right:
 
