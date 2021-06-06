@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
 import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
-import {battleFieldMap, differenceFinder, inversor, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import {battleFieldMap, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
 
 
 export default class RoomManager {
@@ -88,18 +88,29 @@ export default class RoomManager {
       p.moves!.push(movement);
       this.emitter.emit('move_switch', ms);
 
+      if (verifyPositionTolerance(position.x, p.stats!.x)) { 
+        p.stats!.x = position.x;
+      }
+      if (verifyPositionTolerance(position.y, p.stats!.y)) { 
+        p.stats!.y = position.y;
+      }
+/*
       if (verifyPositionTolerance(position, p.stats!)) {
+        console.log('veremos qentrou')
         p.stats!.x = position.x;
         p.stats!.y = position.y;
       } else {
         position.x = p.stats!.x;
         position.y = p.stats!.y;
       }
-
+*/
       this.broadcastUpdates({
         playerId: playerId, 
         command: command,
-        position: position 
+        position: {
+          x: p.stats!.x,
+          y: p.stats!.y
+        } 
       });
     }
   }

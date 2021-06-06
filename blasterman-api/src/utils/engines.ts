@@ -5,14 +5,14 @@ export const idGenerator = (): string => {
   return uuid(); 
 }
 
-export const verifyPositionTolerance = ({x, y}: Entity, position: Entity): boolean => {
-  return Math.abs(x - position.x) <= 27 && Math.abs(y - position.y) <= 27;
+export const verifyPositionTolerance = (a: number, b: number): boolean => {
+  return Math.abs(a - b) <= 100;
 }
 
 export const differenceFinder = (a: number, b: number ): number => {
   return Math.abs(a - b) 
 }
-
+/*
 export const inversor = (entity:Entity, input: boolean = true): Entity => {
   if (input) {
     entity.x -= 8 
@@ -22,7 +22,7 @@ export const inversor = (entity:Entity, input: boolean = true): Entity => {
     entity.y += 10 
   }
   return entity;
-}
+} */
 
 export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Entity => {
   let h = 0;

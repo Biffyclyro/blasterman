@@ -33,6 +33,8 @@ export default class Room extends Phaser.Scene {
   init(infos: EnterRoomInfo): void {
     this.infos = infos;
     this.staticBlocks = this.physics.add.staticGroup();
+
+    this.physics.world.setFPS(60);
   }
 
   preload(): void {
@@ -131,6 +133,8 @@ export default class Room extends Phaser.Scene {
   }
 
   update(time: number, delta: number): void {
+    
+    //console.log(time, delta)
     this.players.forEach((v, k) => {
       if(v != undefined && v.alive) {
         if (v.playerId === this.infos.playerId){
@@ -153,7 +157,10 @@ export default class Room extends Phaser.Scene {
     if (id && id !== this.infos.playerId) {
       const p = this.players.get(id);
       const command = (dtoCommand.data!.command as Movement);
+      const pos = dtoCommand.data!.position;
       if (p) {
+        p.x = pos.x;
+        p.y = pos.y; 
         p.moves.push(command);
         const ms = this.latencyCalculator(command.timestamp, p);
         p.moveSwitch(ms);

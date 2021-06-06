@@ -218,7 +218,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
     }
     const dto: ObjectDto<PlayerCommand> = {
-      info: this.scene.infos.roomId,
+      info: this.scene.infos.roomId!,
       data: pc
     }
     return dto;

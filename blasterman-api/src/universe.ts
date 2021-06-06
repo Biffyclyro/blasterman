@@ -1,6 +1,6 @@
 export class Physics {
   private periodicFunctions: Action[] = []; 
-  private readonly TICK_RATE: number = 17;
+  private readonly TICK_RATE: number = 16.6;
   private loop: ReturnType<typeof setTimeout>; 
 
   constructor(...p: Action[]) { 
