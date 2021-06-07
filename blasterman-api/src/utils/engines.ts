@@ -6,7 +6,7 @@ export const idGenerator = (): string => {
 }
 
 export const verifyPositionTolerance = (a: number, b: number): boolean => {
-  return Math.abs(a - b) <= 100;
+  return Math.abs(a - b) <= 48;
 }
 
 export const differenceFinder = (a: number, b: number ): number => {

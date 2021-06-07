@@ -81,6 +81,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   alive = true;
   tamBomb = 2;
   timestamp: string;
+  repeatedMovement = 0;
   moves: Movement[] = [];
 
   constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer, local = true) {
@@ -164,6 +165,15 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       if (local) {
         this.scene.sendMovement(this.buildCommand());
         console.warn(this.x, this.y)
+      }
+    } 
+    if(this.moving && keyCode === this.direction) {
+      if (local) {
+        this.repeatedMovement ++;
+        if (this.repeatedMovement === 4) {
+          this.repeatedMovement = 0;
+          this.scene.sendMovement(this.buildCommand());
+        }
       }
     }
   }
