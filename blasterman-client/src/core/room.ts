@@ -33,7 +33,6 @@ export default class Room extends Phaser.Scene {
   init(infos: EnterRoomInfo): void {
     this.infos = infos;
     this.staticBlocks = this.physics.add.staticGroup();
-
     this.physics.world.setFPS(60);
   }
 
@@ -345,7 +344,7 @@ export default class Room extends Phaser.Scene {
   }
 
   buildMap(bm: BattlefieldMap): void {
-    const offsetSide = 161;
+    const offsetSide = 160;
     const offsetUp = 16;
 
     this.add.image(offsetSide, offsetUp, bm.background.key)
