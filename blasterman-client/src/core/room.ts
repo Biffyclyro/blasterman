@@ -155,11 +155,8 @@ export default class Room extends Phaser.Scene {
     const id = dtoCommand.data!.playerId;
     if (id && id !== this.infos.playerId) {
       const p = this.players.get(id);
-      const command = (dtoCommand.data!.command as Movement);
-      const pos = dtoCommand.data!.position;
+      const command = dtoCommand.data!.command;
       if (p) {
-        p.x = pos.x;
-        p.y = pos.y; 
         p.moves.push(command);
         const ms = this.latencyCalculator(command.timestamp, p);
         p.moveSwitch(ms);

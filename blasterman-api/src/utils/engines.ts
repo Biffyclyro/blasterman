@@ -46,7 +46,12 @@ export const movementPredictor = ({x, y}: Entity, d: Direction, v: number): Enti
       break;
   }
 
-  return {x: x, y: y, width: 16, height: 22};
+  return {
+    x: Math.round(x), 
+    y: Math.round(y), 
+    width: 16, 
+    height: 22
+  };
 }
 
 export const battleFieldMap = {

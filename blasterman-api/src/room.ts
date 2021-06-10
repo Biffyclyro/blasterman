@@ -1,7 +1,7 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity} from './entities';
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity, isMovement} from './entities';
 import {battleFieldMap, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
 
 
@@ -28,11 +28,6 @@ export default class RoomManager {
   addPlayer(p: Player, timestamp: string): void {
     if (!this.players.has(p.playerId) ) {
       p.moves = [];
-      p.moves.push({
-        timestamp: timestamp,
-        moving: false,
-        direction: Direction.Down
-      });
       p.moveSwitch = async (latency: number) => {
         if (p.moves) {
           p.stats!.timestamp = this.serverTime.toISOString();
@@ -42,15 +37,24 @@ export default class RoomManager {
               p.moves.push({
                 timestamp: timestamp,
                 moving: false,
-                direction: Direction.Down
-              })
+                direction: Direction.Down,
+                x: p.stats!.x,
+                y: p.stats!.y
+              });
             }
           }, latency);
         }
       }
-      this.emitter.on('move_switch', p.moveSwitch); 
+      this.emitter.on('move_switch', p.moveSwitch);
       this.positionChooser(p, timestamp);
-      this.players.set(p.playerId, p); 
+      p.moves.push({
+        timestamp: timestamp,
+        moving: false,
+        direction: Direction.Down,
+        x: p.stats!.x,
+        y: p.stats!.y
+      });
+      this.players.set(p.playerId, p);
     }
   }
 
@@ -80,37 +84,16 @@ export default class RoomManager {
     return this.players.get(playerId); 
   }
 
-  addMove({playerId, command, position}: PlayerCommand): void {
+  addMove({playerId, command}: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
       const movement = (command as Movement);
       const ms = this.latencyCalculator(movement.timestamp, p);
       p.moves!.push(movement);
       this.emitter.emit('move_switch', ms);
-
-      if (verifyPositionTolerance(position.x, p.stats!.x)) { 
-        p.stats!.x = position.x;
-      }
-      if (verifyPositionTolerance(position.y, p.stats!.y)) { 
-        p.stats!.y = position.y;
-      }
-/*
-      if (verifyPositionTolerance(position, p.stats!)) {
-        console.log('veremos qentrou')
-        p.stats!.x = position.x;
-        p.stats!.y = position.y;
-      } else {
-        position.x = p.stats!.x;
-        position.y = p.stats!.y;
-      }
-*/
       this.broadcastUpdates({
         playerId: playerId, 
         command: command,
-        position: {
-          x: p.stats!.x,
-          y: p.stats!.y
-        } 
       });
     }
   }
@@ -121,10 +104,6 @@ export default class RoomManager {
     this.broadcastUpdates({
       playerId: p.playerId, 
       command: bomb,
-      position: {
-        x: p.stats!.x,
-        y: p.stats!.y
-      }
     });
   }
 
@@ -156,9 +135,13 @@ export default class RoomManager {
   private async movePlayer(p: Player): Promise<void> {
     if(p.moves && p.stats) {
       const move = p.moves[0];
-      const x = p.stats.x;
-      const y = p.stats.y;
-      if(move && move.moving){
+      if(move && isMovement(move) && move.moving ){
+        if (verifyPositionTolerance(move.x, p.stats!.x)) {
+          p.stats!.x = move.x;
+        }
+        if (verifyPositionTolerance(move.y, p.stats!.y)) {
+          p.stats!.y = move.y;
+        }
         const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
         switch(move.direction) {
           case Direction.Right:
@@ -206,7 +189,7 @@ export default class RoomManager {
 
         p.stats.x = Math.round(p.stats.x);
         p.stats.y = Math.round(p.stats.y);
-       this.affectedByExplosion(p); 
+        this.affectedByExplosion(p); 
       }
     }
   }

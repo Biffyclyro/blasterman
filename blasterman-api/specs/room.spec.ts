@@ -29,16 +29,14 @@ describe('RoomTester', () => {
     com = {
       timestamp: time.toISOString(),
       moving: true,
-      direction: 4
+      direction: 4,
+      x: 0,
+      y: 0
     }
 
     movement = {
       playerId: 'test', 
       command: com,
-      position: {
-        x: 0,
-        y: 0
-      }
     }
     
     //@ts-ignore

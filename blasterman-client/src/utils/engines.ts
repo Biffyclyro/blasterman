@@ -1,5 +1,5 @@
 import 'phaser';
-import {Entity, NearBlocks, SpriteWithId} from '../entities'
+import {Entity, Movement, NearBlocks, SpriteWithId, Stampable} from '../entities'
 
 export const API_URL = 'http://localhost:8090';
 
@@ -16,11 +16,16 @@ export const centralize = (e: Entity): Entity => {
 
   let y;
 
-  difY >= 18 ? y = e.y + (32 - difY) : y = e.y - difY;
+  difY >= 22 ? y = e.y + (32 - difY) : y = e.y - difY;
 
   y += 16;
 
   return {x, y}
+}
+
+export const isMovement = (movement: Movement 
+                          | Stampable): movement is Movement => {
+  return (movement as Movement).direction !== undefined;
 }
 
 export const findBlock = (bloc: SpriteWithId, 

@@ -9,7 +9,7 @@ export enum Direction {
   Left = 37,
 }
 
-export type Stampable  = {timestamp: string;} & Entity;
+//export type Stampable  = {timestamp: string;} & Entity;
 
 export type Status = {alive: boolean;} & Stampable;
 
@@ -24,8 +24,11 @@ export interface Entity {
   height?:number;
 }
 
-export interface Movement {
+export interface Stampable extends Entity{
   timestamp: string;
+}
+
+export interface Movement extends Stampable{
   moving: boolean;
   direction: Direction;
 }
@@ -33,14 +36,13 @@ export interface Movement {
 export interface PlayerCommand {
   playerId: string;
   command: Movement | Stampable;
-  position: Entity;
 }
 
 export interface Player {
   playerId: string;
   skin?: string;
   stats?: Status;
-  moves?: Movement[];
+  moves?: (Stampable | Movement)[];
   moveSwitch?: (time: number) => Promise<void>; 
 }
 
@@ -53,6 +55,14 @@ export interface BattlefieldMap {
 export interface EnterRoomInfo {
   players: Player[]; 
   map: BattlefieldMap;
+}
+
+export interface RoomMetadata {
+  roomId: string;
+  numPlayers: number;
+  roomMap: string;
+  countries: string[];
+  matchTime?: number;
 }
 
 export class Dinamite  extends EventEmitter implements Entity{

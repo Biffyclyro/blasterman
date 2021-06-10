@@ -1,6 +1,6 @@
 import 'phaser';
 import Room from './core/room';
-import {centralize, clientDate, findBlock} from './utils/engines';
+import {centralize, clientDate, findBlock, isMovement} from './utils/engines';
 
 export enum Direction {
   Up = 38,
@@ -9,7 +9,7 @@ export enum Direction {
   Left = 37,
 }
 
-export type Stampable  = {timestamp: string;} & Entity;
+//export type Stampable  = {timestamp: string;} & Entity;
 
 export type Status = {alive: boolean;} & Stampable;
 
@@ -24,18 +24,19 @@ export interface ServerPlayer {
   stats: Status;
 }
 
-export interface Movement {
+export interface Stampable extends Entity{
   timestamp: string;
+}
+
+export interface Movement extends Stampable{
   moving: boolean;
   direction: Direction;
 }
 
 export interface PlayerCommand {
   playerId: string;
-  command: Movement | Stampable;
-  position: Entity;
+  command: Stampable | Movement;
 }
-
 
 export interface EnterRoomInfo {
   roomId?: string;
@@ -82,7 +83,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   tamBomb = 2;
   timestamp: string;
   repeatedMovement = 0;
-  moves: Movement[] = [];
+  moves: (Stampable | Movement)[] = [];
 
   constructor(scene: Room, {playerId, stats:{x, y}, skin}: ServerPlayer, local = true) {
     super(scene, x, y, skin);
@@ -154,6 +155,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       }
       if(Phaser.Input.Keyboard.JustDown(cursors.space)){
         this.scene.setBomb(this);
+        this.scene.sendMovement(this.buildCommand(true));
       }
     }
   }
@@ -170,7 +172,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     if(this.moving && keyCode === this.direction) {
       if (local) {
         this.repeatedMovement ++;
-        if (this.repeatedMovement === 4) {
+        if (this.repeatedMovement === 3) {
           this.repeatedMovement = 0;
           this.scene.sendMovement(this.buildCommand());
         }
@@ -209,24 +211,43 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   async moveSwitch(latency: number): Promise<void> {
     this.timestamp = clientDate.toISOString();
     setTimeout(() => {
-      const movement = this.moves.pop();
-      this.setMovement(movement!.moving, movement!.direction, false);
+      const movement = this.moves.shift();
+      this.x = movement!.x;
+      this.y = movement!.y;
+      if (isMovement(movement!)) {
+        this.setMovement(movement!.moving, movement!.direction, false);
+      } else {
+        console.warn('entrou na bomba')
+        this.scene.setBomb(this);
+      }
     }, latency);
   }
 
-  private buildCommand(): ObjectDto<PlayerCommand> {
-    const pc: PlayerCommand = {
-      playerId: this.playerId,
-      command: {
-        timestamp: clientDate.toISOString(),
-        moving: this.moving,
-        direction: this.direction
-      },
-      position: {
-        x: this.x,
-        y: this.y
+  private buildCommand(bomb = false): ObjectDto<PlayerCommand> {
+    let pc: PlayerCommand;
+    if (bomb) {
+      pc = {
+        playerId: this.playerId,
+        command: {
+          timestamp: clientDate.toISOString(),
+          x: this.x,
+          y: this.y
+        }
+      }
+
+    } else {
+      pc = {
+        playerId: this.playerId,
+        command: {
+          timestamp: clientDate.toISOString(),
+          moving: this.moving,
+          direction: this.direction,
+          x: this.x,
+          y: this.y
+        }
       }
     }
+
     const dto: ObjectDto<PlayerCommand> = {
       info: this.scene.infos.roomId!,
       data: pc
