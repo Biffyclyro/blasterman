@@ -59,14 +59,21 @@ export default class Room extends Phaser.Scene {
       this.socket.emit('get-game-state', {info: this.infos.roomId});
     });
 
-    this.socket.on('message', (updateState: ObjectDto<ServerPlayer[]>) => {
+    this.socket.on('message', (updateState: ObjectDto<{players:ServerPlayer[], deadPlayers: string[]}>) => {
       if (updateState.info === 'update-state') {
         console.log(updateState.data);
-        updateState.data?.forEach(sp => {
+        updateState.data?.players.forEach(sp => {
           const p = this.players.get(sp.playerId);
           if (p){
             p.x = sp.stats.x;
             p.y = sp.stats.y;
+          }
+        });
+
+        updateState.data?.deadPlayers.forEach(dp => {
+          const p = this.players.get(dp);
+          if (p && p.alive) {
+            p.die();
           }
         });
       }
@@ -124,6 +131,12 @@ export default class Room extends Phaser.Scene {
       */ 
     });
     this.socket.on('command', this.commandHandler.bind(this));
+    this.socket.on('player-kill-notification', (playerId: ObjectDto<string>) => {
+        const p = this.players.get(playerId.data!);
+        if (p && p.alive) {
+          p.die();
+        }
+    });
     this.cursors = this.input.keyboard.createCursorKeys();
     console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
       const teste = (e as Phaser.GameObjects.Sprite)
@@ -314,6 +327,14 @@ export default class Room extends Phaser.Scene {
     //dinamite.on('explosion', this.explode.bind(this));
 
     dinamite.once('animationcomplete', () => {
+      this.socket.send('position-status', {
+        info: this.infos.roomId,
+        data:{
+          x: p.x,
+          y: p.y,
+          timestamp: clientDate.toISOString()
+        }
+      });
       this.explode(nearBlocks);
       dinamite.anims.play('explosion', true).once('animationcomplete', () => {
         dinamite.destroy();

@@ -161,7 +161,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   setMovement(moving: boolean, keyCode = 40, local=true): void {
-    if (moving != this.moving || keyCode != this.direction) {
+    if (moving != this.moving || keyCode != this.direction && this.alive) {
       this.direction = keyCode;
       this.moving = moving;
       if (local) {
@@ -169,7 +169,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
         console.warn(this.x, this.y)
       }
     } 
-    if(this.moving && keyCode === this.direction) {
+    if(this.moving && keyCode === this.direction && this.alive) {
       if (local) {
         this.repeatedMovement ++;
         if (this.repeatedMovement === 3) {

@@ -4,7 +4,7 @@ import RoomManager from './room';
 import socketIO from "socket.io";
 import router from './utils/controllers';
 import {idGenerator, battleFieldMap} from './utils/engines';
-import {Player, PlayerCommand, Movement, isMovement} from './entities';
+import {Player, PlayerCommand, Movement, isMovement, Stampable, Status} from './entities';
 
 
 export interface ObjectDto<T> {
@@ -101,9 +101,21 @@ io.on("connection", socket => {
     if (room) {
       const res = {
         info: 'update-state',
-        data: Array.from(room.players.values())
+        data: {
+          players: Array.from(room.players.values()),
+          deadPlayers: room.deadPlayers
+        }
       }
       socket.send(res);
+    }
+  });
+
+  socket.on('position-status', (requestPositionUpdate: ObjectDto<Status>) => {
+    const room = rooms.get(requestPositionUpdate.info!);
+    const status = requestPositionUpdate.data;
+
+    if (room && status) {
+      room.updatePlayerPosition(status, socket.id);
     }
   });
 });

@@ -77,7 +77,7 @@ export class Dinamite  extends EventEmitter implements Entity{
     this.x = x;
     this.y = y;
     this.size = size;
-    setTimeout( this.explode.bind(this), 3000);
+    setTimeout( this.explode.bind(this), 2750);
   }
 
   explode(): void {
@@ -166,7 +166,7 @@ export class World extends EventEmitter {
     }
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
-      setTimeout(this.battleField.remove.bind(this), 1000, explosion);
+      setTimeout(this.battleField.remove.bind(this), 2000, explosion);
       return true;
     } else {
       const element = this.battleField.colliding(explosion).pop();

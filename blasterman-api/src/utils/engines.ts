@@ -12,6 +12,15 @@ export const verifyPositionTolerance = (a: number, b: number): boolean => {
 export const differenceFinder = (a: number, b: number ): number => {
   return Math.abs(a - b) 
 }
+
+export const correctEntityPosition = (a: Entity, b: Entity): void => {
+  if (verifyPositionTolerance(a.x, b.x)) {
+    a.x = b.x;
+  }
+  if (verifyPositionTolerance(a.y, b.y)) {
+    a.y = b.y;
+  }
+}
 /*
 export const inversor = (entity:Entity, input: boolean = true): Entity => {
   if (input) {

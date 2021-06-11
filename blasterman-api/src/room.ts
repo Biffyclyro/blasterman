@@ -1,8 +1,9 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity, isMovement} from './entities';
-import {battleFieldMap, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity, isMovement, Status} from './entities';
+import {battleFieldMap, correctEntityPosition, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import { ObjectDto } from './server';
 
 
 export default class RoomManager {
@@ -16,6 +17,7 @@ export default class RoomManager {
   private readonly serverSocket: Server;
   private readonly roomId: string;
   private readonly battlefieldMap: BattlefieldMap;
+  readonly deadPlayers: string[] = [];
 
   constructor(io: Server, roomId: string, bm: BattlefieldMap){
     this.serverSocket = io;
@@ -109,6 +111,7 @@ export default class RoomManager {
 
   private affectedByExplosion(p: Player): void {
     if(this.world.touchExplosion(p.stats!)){
+      this.serverSocket.emit('player-kill-notification', {data: p.playerId})
       this.killPlayer(p);
     }
   }
@@ -119,10 +122,13 @@ export default class RoomManager {
     });
   }
 
-  private killPlayer(p: Player): boolean{
+  private killPlayer(p: Player): boolean {
+    this.deadPlayers.push(p.playerId);
+    p.stats!.alive = false;
+    p.moves!.shift();
     return this.players.delete(p.playerId); 
   }
-
+  
   private latencyCalculator(t1: string, p: Player ): number {
     const first = new Date(t1); 
     const last = new Date(p.moves![0].timestamp); 
@@ -133,17 +139,19 @@ export default class RoomManager {
   }
 
   private async movePlayer(p: Player): Promise<void> {
-    if(p.moves && p.stats) {
+    if(p.moves && p.stats && p.stats.alive) {
       const move = p.moves[0];
-      if(move && isMovement(move) && move.moving ){
-        if (verifyPositionTolerance(move.x, p.stats!.x)) {
+      if(move && isMovement(move) && move.moving){
+       /* if (verifyPositionTolerance(move.x, p.stats!.x)) {
           p.stats!.x = move.x;
         }
         if (verifyPositionTolerance(move.y, p.stats!.y)) {
           p.stats!.y = move.y;
         }
+        */
+        correctEntityPosition(move, p.stats!);
         const futurePos = movementPredictor(p.stats, move.direction, this.VELOCITY);
-        switch(move.direction) {
+        switch (move.direction) {
           case Direction.Right:
 
             console.log(this.world.battleField.colliding(futurePos))
@@ -193,14 +201,14 @@ export default class RoomManager {
       }
     }
   }
-  private async updateEntities(): Promise<void> { 
+  private async updateEntities(): Promise<void> {
     this.players.forEach((p: Player) => {
       this.movePlayer(p);
     });
   }
 
-   broadcastUpdates(pc: PlayerCommand): void {
-    this.serverSocket.to(this.roomId).emit('command', {data: pc});
+  broadcastUpdates(pc: PlayerCommand): void {
+    this.serverSocket.to(this.roomId).emit('command', { data: pc });
   }
 
   playerReady(): void {
@@ -212,6 +220,13 @@ export default class RoomManager {
   
   getCampo(): Entity[] {
     return this.world.getCampo();
+  }
+
+  updatePlayerPosition(requestStatus: Status, playerId: string): void {
+    const player = this.players.get(playerId);
+    if (player && requestStatus && requestStatus.alive) {
+     correctEntityPosition(player.stats!, requestStatus);
+    }
   }
 
   private broadcastRoomReady(playes: Map<string, Player>): void {
