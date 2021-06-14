@@ -77,7 +77,7 @@ export class Dinamite  extends EventEmitter implements Entity{
     this.x = x;
     this.y = y;
     this.size = size;
-    setTimeout( this.explode.bind(this), 2750);
+    setTimeout( this.explode.bind(this), 733);
   }
 
   explode(): void {
@@ -109,7 +109,9 @@ export class World extends EventEmitter {
       return block.x === x && block.y === y && this.isBlock(block);
     }).pop();
 
-    if(block && (block as Block).breakable) { this.battleField.remove(block) }
+    if(block && (block as Block).breakable) { 
+      console.log('detectou bloco')
+      this.battleField.remove(block); }
   }
 
   setDinamite(x: number, y:number, latency: number): void {
@@ -118,11 +120,10 @@ export class World extends EventEmitter {
         let dinamite: Dinamite | null = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
           if (d === dinamite ){ 
-            dinamite = null
+            dinamite = null;
             this.explode(d);
           }
         });
-
         this.battleField.push(dinamite);
       }, latency);
     }
@@ -140,6 +141,7 @@ export class World extends EventEmitter {
     }
     this.createExplosion(d);
     for(let i = 0; i < d.size; i++) {
+      console.log('voltas no loop')
       sectionSize += 32;
       if(explosionSection.up) {
         explosionSection.up = this.createExplosion({x: d.x, y: d.y + sectionSize});
@@ -166,13 +168,13 @@ export class World extends EventEmitter {
     }
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
-      setTimeout(this.battleField.remove.bind(this), 2000, explosion);
+      setTimeout(this.battleField.remove.bind(this), 533, explosion);
       return true;
     } else {
       const element = this.battleField.colliding(explosion).pop();
       if( element && this.isBlock(element)) {
         if(element.breakable) {
-          this.battleField.remove(element);    
+          this.destroyBlock(element);    
         } 
       }
       return false;
@@ -218,8 +220,8 @@ export class World extends EventEmitter {
   touchExplosion(entity: Entity): boolean {
     const possibleExplosion = this.battleField.colliding(entity).pop();
     if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
-      return true
-    } else { return false}
+      return true;
+    } else { return false;}
   }
 
   getCampo(): Entity[]{

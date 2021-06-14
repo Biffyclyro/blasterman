@@ -111,7 +111,7 @@ export default class RoomManager {
 
   private affectedByExplosion(p: Player): void {
     if(this.world.touchExplosion(p.stats!)){
-      this.serverSocket.emit('player-kill-notification', {data: p.playerId})
+      this.serverSocket.emit('player-kill-notification', {data: p.playerId});
       this.killPlayer(p);
     }
   }
