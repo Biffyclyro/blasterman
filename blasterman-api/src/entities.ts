@@ -60,12 +60,17 @@ export interface EnterRoomInfo {
 export interface RoomMetadata {
   roomId: string;
   numPlayers: number;
-  roomMap: string;
   countries: string[];
-  matchTime?: number;
+  matchTime?: string;
 }
 
-export class Dinamite  extends EventEmitter implements Entity{
+export interface Manager {
+  _id: string;
+  login: string;
+  password: string;
+}
+
+export class Dinamite  extends EventEmitter implements Entity {
   readonly width = 24;
   readonly height = 24;
   readonly x: number;
@@ -120,8 +125,8 @@ export class World extends EventEmitter {
         let dinamite: Dinamite | null = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
           if (d === dinamite ){ 
-            dinamite = null;
             this.explode(d);
+            dinamite = null;
           }
         });
         this.battleField.push(dinamite);
@@ -141,7 +146,6 @@ export class World extends EventEmitter {
     }
     this.createExplosion(d);
     for(let i = 0; i < d.size; i++) {
-      console.log('voltas no loop')
       sectionSize += 32;
       if(explosionSection.up) {
         explosionSection.up = this.createExplosion({x: d.x, y: d.y + sectionSize});
@@ -166,6 +170,7 @@ export class World extends EventEmitter {
       height: 32,
       elementType: 'explosion'
     }
+    console.log('explosão criada')
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
       setTimeout(this.battleField.remove.bind(this), 533, explosion);

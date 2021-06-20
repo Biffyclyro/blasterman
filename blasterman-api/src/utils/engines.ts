@@ -15,10 +15,10 @@ export const differenceFinder = (a: number, b: number ): number => {
 
 export const correctEntityPosition = (a: Entity, b: Entity): void => {
   if (verifyPositionTolerance(a.x, b.x)) {
-    a.x = b.x;
+    b.x = a.x;
   }
   if (verifyPositionTolerance(a.y, b.y)) {
-    a.y = b.y;
+    b.y = a.y;
   }
 }
 /*

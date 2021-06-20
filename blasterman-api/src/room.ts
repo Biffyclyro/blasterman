@@ -1,8 +1,26 @@
 import EventEmitter from 'events';
 import {Server} from "socket.io";
 import {Physics, Action} from './universe';
-import {Player, PlayerCommand, Stampable, Movement, World, BattlefieldMap, Direction, EnterRoomInfo, Entity, isMovement, Status} from './entities';
-import {battleFieldMap, correctEntityPosition, differenceFinder, movementPredictor, verifyPositionTolerance} from './utils/engines'
+import {
+  Player, 
+  PlayerCommand, 
+  Stampable, 
+  Movement, 
+  World, 
+  BattlefieldMap, 
+  Direction, 
+  EnterRoomInfo, 
+  Entity, 
+  isMovement, 
+  Status
+} from './entities';
+import {
+  battleFieldMap, 
+  correctEntityPosition, 
+  differenceFinder, 
+  movementPredictor, 
+  verifyPositionTolerance
+} from './utils/engines'
 import { ObjectDto } from './server';
 
 
@@ -142,7 +160,8 @@ export default class RoomManager {
     if(p.moves && p.stats && p.stats.alive) {
       const move = p.moves[0];
       if(move && isMovement(move) && move.moving){
-       /* if (verifyPositionTolerance(move.x, p.stats!.x)) {
+        /*
+        if (verifyPositionTolerance(move.x, p.stats!.x)) {
           p.stats!.x = move.x;
         }
         if (verifyPositionTolerance(move.y, p.stats!.y)) {
