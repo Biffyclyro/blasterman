@@ -1,9 +1,11 @@
 import 'phaser';
 import LoadingScreen from './core/loading-screen';
 import RoomManager from './core/room';
+import SearchScreen from './core/search-room';
 
 export default class Main extends Phaser.Scene {
   playButton: Phaser.GameObjects.Text;
+  serachButton: Phaser.GameObjects.Text;
   title: Phaser.GameObjects.Image;
   url = window.location; 
 
@@ -27,6 +29,20 @@ export default class Main extends Phaser.Scene {
     this.playButton.on('pointerdown', () => {
       this.searchGame();
     });
+
+    this.serachButton = this.add.text(500, 510, 'Buscar Sala');
+    this.serachButton.setScale(3,3);
+    this.serachButton.setInteractive();
+    this.serachButton.on('pointerdown', () => {
+      this.searchRoom();
+    });
+  }
+
+  searchRoom():void {
+    this.scene.start('SearchScreen');
+    this.title.destroy();
+    this.playButton.destroy();
+    this.serachButton.destroy();
   }
 
   searchGame(): void {
@@ -35,6 +51,7 @@ export default class Main extends Phaser.Scene {
     this.scene.start('LoadingScreen', {roomId: roomId});
     this.title.destroy();
     this.playButton.destroy();
+    this.serachButton.destroy();
   }
 }
 
@@ -42,7 +59,7 @@ const config = {
   type: Phaser.CANVAS,
   width: 1366,
   height: 768,
-  scene: [Main, LoadingScreen, RoomManager],
+  scene: [Main, LoadingScreen, RoomManager, SearchScreen],
   physics: {
     default: 'arcade',
     arcade: {

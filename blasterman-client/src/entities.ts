@@ -134,6 +134,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
       this.setVelocity(0, 0);
       this.anims.play(`${this.skin}-stand`, true);
       this.anims.play(`${this.skin}-dead`, true);
+      this.scene.sendMovement(this.buildCommand());
       this.once('animationcomplete', () => {
         this.destroy();
       });
