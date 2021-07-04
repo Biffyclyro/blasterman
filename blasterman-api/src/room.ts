@@ -248,6 +248,10 @@ export default class RoomManager {
     }
   }
 
+  get statusInfo(): {roomId: string, numPlayers: number} {
+    return { roomId: this.roomId, numPlayers: this.players.size};
+  }
+
   private broadcastRoomReady(playes: Map<string, Player>): void {
     const enterRoomInfo: EnterRoomInfo = {
       players: [], 

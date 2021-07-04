@@ -13,6 +13,16 @@ router.get('/connect-server', async (req: express.Request,
 });
 
 router.get('/rooms-list', async (req: express.Request,
+                                res: express.Response) => {
+
+  const activeRooms = Array.from(rooms.values()).map(r => {
+    return r.statusInfo;
+  });
+
+  res.send({data: activeRooms});
+});
+
+router.get('/rooms-debug', async (req: express.Request,
                                  res: express.Response) => {
   const roomsMap = Array.from(rooms.values()); 
 

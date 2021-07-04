@@ -23,7 +23,7 @@ export default class Main extends Phaser.Scene {
     .setDisplaySize(1000, 500);
 
     
-    this.playButton = this.add.text(600, 450, 'Play');
+    this.playButton = this.add.text(600, 450, 'Jogar');
     this.playButton.setScale(3, 3);
     this.playButton.setInteractive();
     this.playButton.on('pointerdown', () => {
