@@ -1,8 +1,9 @@
 import axios from  'axios';
+import { ObjectDto } from '../entities';
 import {API_URL} from '../utils/engines';
 
 
-export class ConnectionService {
+export default class ConnectionService {
 	private conn = axios;
 	private static readonly INSTANCE = new ConnectionService();
 
@@ -12,7 +13,7 @@ export class ConnectionService {
 		}
 	}
 
-	getRoomList(): Promise<{roomId: string, numPlayers: number}[]> {
+	getRoomList(): Promise<ObjectDto<{roomId: string, numPlayers: number}[]>> {
 		return this.conn.get(`${API_URL}/rooms-list`).then(r => r.data);
 	}
 }

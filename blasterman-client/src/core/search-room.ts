@@ -1,5 +1,5 @@
 import 'phaser';
-import { ConnectionService } from '../services/http-service';
+import ConnectionService from '../services/http-service';
 
 export default class SearchScreen extends Phaser.Scene {
 	private backButton: Phaser.GameObjects.Text;
@@ -14,26 +14,23 @@ export default class SearchScreen extends Phaser.Scene {
 
 	create(): void {
 		this.httpC.getRoomList().then(d => {
-			this.activeRooms = d;
+			this.activeRooms = d.data!.map(rs => {return rs;});
 			let positionY = 200;
 			this.title = this.add.text(500, 100, 'Partidas em andamento').setScale(1.5, 1.5);
 			console.log(this.activeRooms);
 			this.activeRooms.forEach(ar => {
-				const activeRoom = this.add.text(500, positionY, `${this.activeRooms.indexOf(ar) + 1}......................${ar.numPlayers}/2`);
+				const activeRoom = this.add.text(500, 
+																				positionY, 
+																				`Sala ${this.activeRooms.indexOf(ar) + 1}......................${ar.numPlayers}/2`);
 				activeRoom.setInteractive();
 				activeRoom.on('pointerdown', () => {
-					return;
+					this.goToRoom(ar.roomId);	
 				});
 				this.rooms.push(activeRoom);
 				positionY += 50;
 			});
-
 		});
-	/*	this.rooms.push(this.add.text(500, 200, 'Sala 1......................1/2'));
-		this.rooms.push(this.add.text(500, 250, 'Sala 2......................2/2'));
-		this.rooms.push(this.add.text(500, 300, 'Sala 3......................2/4'));
-		this.rooms.push(this.add.text(500, 350, 'Sala 4......................1/4'));
-		*/	
+		
 		this.backButton = this.add.text(200, 700, '<- Voltar');
 		this.backButton.setInteractive();
 		this.backButton.on('pointerdown', () => {
@@ -47,7 +44,7 @@ export default class SearchScreen extends Phaser.Scene {
 		this.rooms.forEach(r => r.destroy());
 	}
 
-	private goToRoom(roomId: number): void {
+	private goToRoom(roomId: string): void {
 		this.scene.start('LoadingScreen', { roomId: roomId });
 		this.destroyAll();
 	}

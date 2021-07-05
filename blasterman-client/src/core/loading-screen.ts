@@ -8,7 +8,6 @@ export default class LoadingScreen extends Phaser.Scene {
   infos: EnterRoomInfo;
   localPlayerId: string;
   
-
   constructor() {
     super('LoadingScreen');
   }

@@ -4,10 +4,10 @@ import RoomManager from './core/room';
 import SearchScreen from './core/search-room';
 
 export default class Main extends Phaser.Scene {
-  playButton: Phaser.GameObjects.Text;
-  serachButton: Phaser.GameObjects.Text;
-  title: Phaser.GameObjects.Image;
-  url = window.location; 
+  private playButton: Phaser.GameObjects.Text;
+  private serachButton: Phaser.GameObjects.Text;
+  private title: Phaser.GameObjects.Image;
+  private url = window.location; 
 
   constructor() {
     super('Main');
@@ -21,7 +21,6 @@ export default class Main extends Phaser.Scene {
     this.title = this.add.image(180, 0, 'title')
     .setOrigin(0, 0)
     .setDisplaySize(1000, 500);
-
     
     this.playButton = this.add.text(600, 450, 'Jogar');
     this.playButton.setScale(3, 3);
