@@ -5,10 +5,10 @@ import {API_URL} from '../utils/engines';
 export default class WebSocketService {
   private static socket: Socket;
 
-  static getInstance(): Socket {
-    if(!this.socket) {
-      this.socket = io(`${API_URL}`);
+  static get INSTANCE(): Socket {
+    if(!WebSocketService.socket) {
+      WebSocketService.socket = io(`${API_URL}`);
     }
-    return this.socket;
+    return WebSocketService.socket;
   }
 }

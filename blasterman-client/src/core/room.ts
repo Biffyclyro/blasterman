@@ -23,7 +23,7 @@ export default class Room extends Phaser.Scene {
   players = new Map<string, Player>();
   staticBlocks: Phaser.Physics.Arcade.StaticGroup; 
   readonly FRAME_SIZE = 32;
-  readonly socket = WebSocketService.getInstance();
+  readonly socket = WebSocketService.INSTANCE;
   private readonly localDate = clientDate;
 
   constructor() {

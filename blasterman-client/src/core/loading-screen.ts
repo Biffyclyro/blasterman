@@ -4,7 +4,7 @@ import {loading, clientDate} from '../utils/engines';
 import {EnterRoomInfo, ObjectDto, ServerPlayer} from '../entities';
 
 export default class LoadingScreen extends Phaser.Scene {
-  private readonly socket = WebSocketService.getInstance();
+  private readonly socket = WebSocketService.INSTANCE;
   infos: EnterRoomInfo;
   localPlayerId: string;
   
