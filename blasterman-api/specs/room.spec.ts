@@ -1,5 +1,5 @@
-import RoomManager from '../src/room'
-import {Player, Movement, World, PlayerCommand} from '../src/entities';
+import RoomManager from '../src/game/room'
+import {Player, Movement, World, PlayerCommand} from '../src/game/entities';
 import EventEmitter from 'events';
 import {battleFieldMap} from '../src/utils/engines';
 

@@ -1,4 +1,4 @@
-import {World, Dinamite, Block} from '../src/entities';
+import {World, Dinamite, Block} from '../src/game/entities';
 import {battleFieldMap} from '../src/utils/engines';
 
 

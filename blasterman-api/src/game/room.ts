@@ -20,8 +20,8 @@ import {
   differenceFinder, 
   movementPredictor, 
   verifyPositionTolerance
-} from './utils/engines'
-import { ObjectDto } from './server';
+} from '../utils/engines'
+import { ObjectDto } from '../server';
 
 
 export default class RoomManager {

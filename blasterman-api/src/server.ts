@@ -1,10 +1,11 @@
 import cors from "cors";
 import express from "express";
-import RoomManager from './room';
+import RoomManager from './game/room';
 import socketIO from "socket.io";
-import router from './utils/controllers';
+import "./server-core/db-connection";
+import router from './server-core/controllers';
 import {idGenerator, battleFieldMap} from './utils/engines';
-import {Player, PlayerCommand, Movement, isMovement, Stampable, Status} from './entities';
+import {Player, PlayerCommand, Movement, isMovement, Stampable, Status} from './game/entities';
 
 
 export interface ObjectDto<T> {

@@ -1,5 +1,5 @@
 import {v4 as uuid} from 'uuid';
-import { Direction, Entity } from '../entities';
+import { Direction, Entity } from '../game/entities';
 
 export const idGenerator = (): string => {
   return uuid(); 
