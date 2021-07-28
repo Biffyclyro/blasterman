@@ -1,10 +1,10 @@
-import socketIO from "socket.io";
 import http from 'http';
-import { isMovement, PlayerCommand, Status } from "../game/entities";
+import socketIO from "socket.io";
 import RoomManager from "../game/room";
-import { ObjectDto, rooms } from "../server";
-import { idGenerator } from "../utils/engines";
 import { getMap } from "./controllers";
+import { idGenerator } from "../utils/engines";
+import { ObjectDto, rooms } from "../server";
+import { isMovement, PlayerCommand, Status } from "../game/entities";
 
 
 export const socketHandler = (server: http.Server): void => {

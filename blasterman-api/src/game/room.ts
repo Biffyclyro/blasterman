@@ -41,7 +41,7 @@ export default class RoomManager {
     this.serverSocket = io;
     this.roomId = roomId;
     this.world = new World(bm);
-    this.battlefieldMap = battleFieldMap;
+    this.battlefieldMap = bm;
     this.emitter.on('explosion', this.explosionHandler.bind(this));
   }
 
