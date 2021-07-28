@@ -5,5 +5,5 @@
 
 ## To-do
 - [x] DB connection
-- [ ] Map edition
+- [x] Map Editor 
 - [ ] Server-side bomb

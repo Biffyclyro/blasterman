@@ -6,6 +6,10 @@ import BfModel from './db-model';
 
 const router = express.Router();
 
+export const getMap = async (): Promise<BattlefieldMap | null > => {
+  return await BfModel.findOne({});  
+}
+
 router.get('/connect-server', async (req: express.Request,
                                      res: express.Response) => {
                                          
