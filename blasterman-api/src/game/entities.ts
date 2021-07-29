@@ -77,7 +77,7 @@ export class Dinamite  extends EventEmitter implements Entity {
   readonly y: number;
   size: number;
   
-  constructor(x: number,y: number, size: number = 2) {
+  constructor(x: number,y: number, size = 2) {
     super();
     this.x = x;
     this.y = y;
@@ -119,19 +119,19 @@ export class World extends EventEmitter {
       this.battleField.remove(block); }
   }
 
-  setDinamite(x: number, y:number, latency: number): void {
-    if (!this.checkCollision({x:x, y:y})) {
-      setTimeout(() => {
+  setDinamite(x: number, y: number, latency: number): void {
+    setTimeout(() => {
+      if (!this.checkCollision({ x: x, y: y })) {
         let dinamite: Dinamite | null = new Dinamite(x, y);
         dinamite.on('explode', (d: Dinamite) => {
-          if (d === dinamite ){ 
+          if (d === dinamite) {
             this.explode(d);
             dinamite = null;
           }
         });
         this.battleField.push(dinamite);
-      }, latency);
-    }
+      }
+    }, latency);
   }
 
   explode(d: Dinamite): void{
@@ -148,13 +148,13 @@ export class World extends EventEmitter {
     for(let i = 0; i < d.size; i++) {
       sectionSize += 32;
       if(explosionSection.up) {
-        explosionSection.up = this.createExplosion({x: d.x, y: d.y + sectionSize});
+        explosionSection.up = this.createExplosion({x: d.x, y: d.y - sectionSize});
       }
       if(explosionSection.right) {
         explosionSection.right = this.createExplosion({x: d.x + sectionSize, y: d.y});
       }
       if(explosionSection.down) {
-        explosionSection.down = this.createExplosion({x: d.x, y: d.y - sectionSize});
+        explosionSection.down = this.createExplosion({x: d.x, y: d.y + sectionSize});
       }
       if(explosionSection.left) {
         explosionSection.left = this.createExplosion({x: d.x - sectionSize, y: d.y});
@@ -173,7 +173,9 @@ export class World extends EventEmitter {
     console.log('explosão criada')
     if(!this.checkCollision(explosion)) {
       this.battleField.push(explosion);
-      setTimeout(this.battleField.remove.bind(this), 533, explosion);
+      setTimeout(() => {
+        this.battleField.remove(explosion);
+      }, 533);
       return true;
     } else {
       const element = this.battleField.colliding(explosion).pop();

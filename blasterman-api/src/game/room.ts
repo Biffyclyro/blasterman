@@ -261,7 +261,6 @@ export default class RoomManager {
       enterRoomInfo.players.push(v);
     });
 
-    //console.log(enterRoomInfo);
     this.serverSocket.to(this.roomId).emit('room-ready', {
       info: this.roomId, 
       data: enterRoomInfo

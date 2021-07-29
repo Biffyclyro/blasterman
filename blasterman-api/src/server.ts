@@ -10,9 +10,9 @@ export interface ObjectDto<T> {
   data?: T;
 }
 
+export const rooms = new Map<string, RoomManager>();
 const port = 8090 
 const app: express.Application = express();
-export const rooms = new Map<string, RoomManager>();
 
 app.use(express.json());
 /*const corsOptions = {
@@ -22,5 +22,6 @@ app.use(express.json());
 app.use(cors());
 app.use(router);
 app.use(express.static('assets'));
-export const server = app.listen(port);
+
+const server = app.listen(port);
 socketHandler(server);

@@ -14,12 +14,12 @@ export const socketHandler = (server: http.Server): void => {
 		cors: {
 			origin: 'http://localhost:8000',
 			methods: ["GET", "POST"]
-		}
+		},
 	});
 
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	//@ts-ignore
-	io.engine.generateId = (req: any) => {
+	io.engine.generateId = (req: unknown) => {
 		return idGenerator();
 	}
 
@@ -27,7 +27,6 @@ export const socketHandler = (server: http.Server): void => {
 		socket.on('enter-room', async (enterRequest: ObjectDto<string>) => {
 
 			let roomId = enterRequest.info;
-			//console.log(roomId);
 			if (!roomId) {
 				roomId = idGenerator();
 			}
