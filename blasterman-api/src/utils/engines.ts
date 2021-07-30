@@ -1,7 +1,7 @@
 import express from 'express';
 import {v4 as uuid} from 'uuid';
-import { Direction, Entity } from '../game/entities';
 import { ObjectDto } from '../server';
+import { Direction, Entity } from '../game/entities';
 
 export const idGenerator = (): string => {
   return uuid(); 
@@ -29,8 +29,12 @@ export const verifyRequest = (req: express.Request,
                               next: express.NextFunction): void => {
 
   const body = req.body;                              
-  console.log(body);
-  if (isValidRequest(body) || Object.keys(body).length === 0 ) {return next();}
+  if (isValidRequest(body) || Object.keys(body).length === 0 ) {
+    return next();
+  } else {
+    res.status(400);
+    res.send('Erro na requisição');
+  }
 }
 
 export const isValidRequest = (body: ObjectDto<unknown> | any): body is ObjectDto<unknown> => {

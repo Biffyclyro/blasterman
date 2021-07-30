@@ -1,8 +1,8 @@
 import express from 'express';
-import { BattlefieldMap, Entity } from '../game/entities';
+import BfModel from './db-model';
 import {ObjectDto, rooms} from '../server'; 
 import {idGenerator} from '../utils/engines';
-import BfModel from './db-model';
+import { BattlefieldMap, Entity } from '../game/entities';
 
 const router = express.Router();
 
@@ -38,7 +38,6 @@ router.get('/rooms-debug', async (req: express.Request,
   const dto = mapas;
 
   res.send(dto);
-  
 });
 
 router.get('/map/:id', async (req: express.Request,
