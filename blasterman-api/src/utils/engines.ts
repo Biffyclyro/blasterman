@@ -1,5 +1,7 @@
+import express from 'express';
 import {v4 as uuid} from 'uuid';
 import { Direction, Entity } from '../game/entities';
+import { ObjectDto } from '../server';
 
 export const idGenerator = (): string => {
   return uuid(); 
@@ -20,6 +22,20 @@ export const correctEntityPosition = (a: Entity, b: Entity): void => {
   if (verifyPositionTolerance(a.y, b.y)) {
     b.y = a.y;
   }
+}
+
+export const verifyRequest = (req: express.Request, 
+                              res: express.Response, 
+                              next: express.NextFunction): void => {
+
+  const body = req.body;                              
+  console.log(body);
+  if (isValidRequest(body) || Object.keys(body).length === 0 ) {return next();}
+}
+
+export const isValidRequest = (body: ObjectDto<unknown> | any): body is ObjectDto<unknown> => {
+  return (body as ObjectDto<unknown>).info !== undefined || 
+         (body as ObjectDto<unknown>).data !== undefined;
 }
 /*
 export const inversor = (entity:Entity, input: boolean = true): Entity => {

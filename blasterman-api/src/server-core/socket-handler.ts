@@ -23,6 +23,7 @@ export const socketHandler = (server: http.Server): void => {
 		return idGenerator();
 	}
 
+
 	io.on("connection", socket => {
 		socket.on('enter-room', async (enterRequest: ObjectDto<string>) => {
 

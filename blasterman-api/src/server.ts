@@ -4,6 +4,7 @@ import RoomManager from './game/room';
 import router from './server-core/controllers';
 import {socketHandler} from "./server-core/socket-handler"
 import "./server-core/db-connection";
+import { verifyRequest } from "./utils/engines";
 
 export interface ObjectDto<T> {
   info?: string;
@@ -20,6 +21,7 @@ app.use(express.json());
 }
 */
 app.use(cors());
+app.use(verifyRequest)
 app.use(router);
 app.use(express.static('assets'));
 
