@@ -39,7 +39,7 @@ router.get('/rooms-debug', async (req: express.Request,
 
   res.send(dto);
 });
-
+// get one map
 router.get('/map/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
@@ -50,13 +50,13 @@ router.get('/map/:id', async (req: express.Request,
     }
   }
 });
-
+//get all maps
 router.get('/get-maps', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap[]>>) => {
   const maps = await BfModel.find();
   res.send({data:maps});
 });
-
+//delete map
 router.delete('/:id', async (req: express.Request,
   res: express.Response<ObjectDto<unknown>>) => {
 
@@ -70,7 +70,7 @@ router.delete('/:id', async (req: express.Request,
     }
   }
 });
-
+//update map
 router.post('/update/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
@@ -82,7 +82,7 @@ router.post('/update/:id', async (req: express.Request,
     res.send({info: 'erro ao atualizar'});
   }
 });
-
+//create new map
 router.post('/new-map', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
 

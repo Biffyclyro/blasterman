@@ -146,8 +146,7 @@ export default class Room extends Phaser.Scene {
 
   update(time: number, delta: number): void {
     
-    //console.log(time, delta)
-    this.players.forEach((v, k) => {
+    this.players.forEach((v: Player, k: string) => {
       if(v != undefined && v.alive) {
         if (v.playerId === this.infos.playerId){
           v.localCommands(this.cursors);

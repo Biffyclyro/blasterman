@@ -24,9 +24,7 @@ export default class LoadingScreen extends Phaser.Scene {
     this.socket.on('message', (res: ObjectDto<string>) => {
       if (res.info !== 'update-state') {
         this.localPlayerId = res.data!;
-        const url = new URL(window.location.href);
-        url.searchParams.set('room', res.info!);
-        window.history.pushState({}, '', url.href);
+        this.urlBuilder(res.info!);
         this.socket.emit('ok', { info: res.info! });
       }
     });
@@ -43,5 +41,11 @@ export default class LoadingScreen extends Phaser.Scene {
 
   private runGame(): void {
     this.scene.start('Room', this.infos);
+  }
+
+  private urlBuilder(roomID: string): void {
+    const url = new URL(window.location.href);
+    url.searchParams.set('room', roomID);
+    window.history.pushState({}, '', url.href);
   }
 }

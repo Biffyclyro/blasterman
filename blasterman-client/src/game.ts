@@ -7,7 +7,7 @@ export default class Main extends Phaser.Scene {
   private playButton: Phaser.GameObjects.Text;
   private serachButton: Phaser.GameObjects.Text;
   private title: Phaser.GameObjects.Image;
-  private url = window.location; 
+  private url = new URL(window.location.href); 
 
   constructor() {
     super('Main');
@@ -46,7 +46,7 @@ export default class Main extends Phaser.Scene {
 
   searchGame(): void {
     let roomId = ''; 
-    if(this.url.search.slice(1)){ roomId = this.url.search.slice(6)}
+    if(this.url.searchParams){roomId = this.url.searchParams.get('room')!}
     this.scene.start('LoadingScreen', {roomId: roomId});
     this.title.destroy();
     this.playButton.destroy();
@@ -63,6 +63,7 @@ const config = {
     default: 'arcade',
     arcade: {
       debug: false
+
     }
   } 
 }
