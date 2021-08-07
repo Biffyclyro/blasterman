@@ -1,54 +1,56 @@
+/* eslint-disable no-irregular-whitespace */
 import express from 'express';
 import BfModel from './db-model';
-import {ObjectDto, rooms} from '../server'; 
-import {idGenerator} from '../utils/engines';
+import { ObjectDto, rooms } from '../server';
+import { idGenerator } from '../utils/engines';
 import { BattlefieldMap, Entity } from '../game/entities';
 
 const router = express.Router();
 
 //get random config
-export const getMap = async (): Promise<BattlefieldMap | null > => {
+export const getMap = async (): Promise<BattlefieldMap | null> => {
   const mapsList = await BfModel.find();
   const index = Math.floor(Math.random() * mapsList.length);
-  return mapsList[index];  
+  return mapsList[index];
 }
 
 router.get('/connect-server', async (req: express.Request,
-                                     res: express.Response) => {
-                                         
-  const dto: ObjectDto<string> = {data: idGenerator()};
+  res: express.Response) => {
+
+  const dto: ObjectDto<string> = { data: idGenerator() };
   res.send(dto);
 });
 
 router.get('/rooms-list', async (req: express.Request,
-                                res: express.Response) => {
+  res: express.Response) => {
 
   const activeRooms = Array.from(rooms.values()).map(r => {
     return r.statusInfo;
   });
 
-  res.send({data: activeRooms});
+  res.send({ data: activeRooms });
 });
 
 router.get('/rooms-debug', async (req: express.Request,
-                                 res: express.Response) => {
-  const roomsMap = Array.from(rooms.values()); 
+  res: express.Response) => {
+  const roomsMap = Array.from(rooms.values());
 
-  const mapas: {campo:Entity[]}[] =[];   
+  const mapas: { campo: Entity[] }[] = [];
 
-  roomsMap.forEach(bbb => mapas.push({campo: bbb.getCampo()}));
+  roomsMap.forEach(bbb => mapas.push({ campo: bbb.getCampo() }));
 
   const dto = mapas;
 
   res.send(dto);
 });
+
 // get one map
 router.get('/map/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
   if (id) {
     const map = await BfModel.findById(id);
-    if(map) {
+    if (map) {
       res.send({ info: map._id, data: map });
     }
   }
@@ -57,7 +59,7 @@ router.get('/map/:id', async (req: express.Request,
 router.get('/get-maps', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap[]>>) => {
   const maps = await BfModel.find();
-  res.send({data:maps});
+  res.send({ data: maps });
 });
 //delete map
 router.delete('/:id', async (req: express.Request,
@@ -65,9 +67,9 @@ router.delete('/:id', async (req: express.Request,
 
   const id = req.params.id;
 
-  if(id) {
+  if (id) {
     const map = await BfModel.findById(id);
-    if(map){
+    if (map) {
       map.remove();
       res.send({ info: 'deletado' });
     }
@@ -79,16 +81,16 @@ router.post('/update/:id', async (req: express.Request,
   const id = req.params.id;
   const updatedMap = req.body.data;
   const map = await BfModel.findByIdAndUpdate(id, updatedMap, { new: true });
-  if(map) {
+  if (map) {
     res.send({ info: map._id, data: map });
   } else {
-    res.send({info: 'erro ao atualizar'});
+    res.send({ info: 'erro ao atualizar' });
   }
 });
 //create new map
 router.post('/new-map', async (req: express.Request<ObjectDto<BattlefieldMap>>,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
-    
+
   console.log(req.body)
   const map = await BfModel.create(req.body.data);
 
