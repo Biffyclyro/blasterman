@@ -6,8 +6,11 @@ import { BattlefieldMap, Entity } from '../game/entities';
 
 const router = express.Router();
 
+//get random config
 export const getMap = async (): Promise<BattlefieldMap | null > => {
-  return await BfModel.findOne({});  
+  const mapsList = await BfModel.find();
+  const index = Math.floor(Math.random() * mapsList.length);
+  return mapsList[index];  
 }
 
 router.get('/connect-server', async (req: express.Request,
@@ -74,7 +77,7 @@ router.delete('/:id', async (req: express.Request,
 router.post('/update/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
-  const updatedMap = req.body;
+  const updatedMap = req.body.data;
   const map = await BfModel.findByIdAndUpdate(id, updatedMap, { new: true });
   if(map) {
     res.send({ info: map._id, data: map });
@@ -83,11 +86,11 @@ router.post('/update/:id', async (req: express.Request,
   }
 });
 //create new map
-router.post('/new-map', async (req: express.Request,
+router.post('/new-map', async (req: express.Request<ObjectDto<BattlefieldMap>>,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
-
-  const { tiles, breakableBlocks, background } = req.body;
-  const map = await BfModel.create({ tiles, breakableBlocks, background });
+    
+  console.log(req.body)
+  const map = await BfModel.create(req.body.data);
 
   res.send({ info: map._id, data: map });
 });
