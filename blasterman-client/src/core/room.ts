@@ -137,6 +137,7 @@ export default class Room extends Phaser.Scene {
           p.die();
         }
     });
+    this.socket.on('match-ended', () => alert('acabou'));
     this.cursors = this.input.keyboard.createCursorKeys();
     console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
       const teste = (e as Phaser.GameObjects.Sprite)

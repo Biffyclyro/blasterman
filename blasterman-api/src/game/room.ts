@@ -21,7 +21,7 @@ import {
   movementPredictor, 
   verifyPositionTolerance
 } from '../utils/engines'
-import { ObjectDto } from '../server';
+import { ObjectDto, rooms } from '../server';
 
 
 export default class RoomManager {
@@ -35,6 +35,7 @@ export default class RoomManager {
   private readonly serverSocket: Server;
   private readonly roomId: string;
   private readonly battlefieldMap: BattlefieldMap;
+  private readonly matchTime = 180000;
   readonly deadPlayers: string[] = [];
 
   constructor(io: Server, roomId: string, bm: BattlefieldMap){
@@ -224,6 +225,9 @@ export default class RoomManager {
     this.players.forEach((p: Player) => {
       this.movePlayer(p);
     });
+    if(this.players.size <= 1) {
+      this.endMatch();
+    }
   }
 
   broadcastUpdates(pc: PlayerCommand): void {
@@ -232,7 +236,7 @@ export default class RoomManager {
 
   playerReady(): void {
     this.playersReady++;
-    if(this.playersReady ===2){
+    if(this.playersReady === 2){
       this.broadcastRoomReady(this.players);
     }
   }
@@ -246,6 +250,12 @@ export default class RoomManager {
     if (player && requestStatus && requestStatus.alive) {
      correctEntityPosition(player.stats!, requestStatus);
     }
+  }
+
+  private endMatch(): void {
+    this.serverSocket.to(this.roomId).emit('match-ended');
+    this.serverSocket.removeAllListeners(this.roomId);
+    rooms.delete(this.roomId);
   }
 
   get statusInfo(): {roomId: string, numPlayers: number} {
@@ -265,5 +275,7 @@ export default class RoomManager {
       info: this.roomId, 
       data: enterRoomInfo
     });
+
+    setTimeout(() => this.endMatch(), this.matchTime);
   }
 }
