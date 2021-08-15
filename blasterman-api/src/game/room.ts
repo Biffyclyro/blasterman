@@ -1,24 +1,24 @@
 import EventEmitter from 'events';
-import {Server} from "socket.io";
-import {Physics, Action} from './universe';
+import { Server } from "socket.io";
+import { Physics, Action } from './universe';
 import {
-  Player, 
-  PlayerCommand, 
-  Stampable, 
-  Movement, 
-  World, 
-  BattlefieldMap, 
-  Direction, 
-  EnterRoomInfo, 
-  Entity, 
-  isMovement, 
+  Player,
+  PlayerCommand,
+  Stampable,
+  Movement,
+  World,
+  BattlefieldMap,
+  Direction,
+  EnterRoomInfo,
+  Entity,
+  isMovement,
   Status
 } from './entities';
 import {
-  battleFieldMap, 
-  correctEntityPosition, 
-  differenceFinder, 
-  movementPredictor, 
+  battleFieldMap,
+  correctEntityPosition,
+  differenceFinder,
+  movementPredictor,
   verifyPositionTolerance
 } from '../utils/engines'
 import { ObjectDto, rooms } from '../server';
@@ -29,16 +29,17 @@ export default class RoomManager {
   playersReady = 0;
   private readonly world: World;
   private readonly emitter = new EventEmitter();
-  private readonly physics = new Physics(this.updateEntities.bind(this));  
+  private readonly physics = new Physics(this.updateEntities.bind(this));
   private readonly VELOCITY = 2.75;
   private readonly serverTime = new Date();
   private readonly serverSocket: Server;
   private readonly roomId: string;
   private readonly battlefieldMap: BattlefieldMap;
-  private readonly matchTime = 180000;
+  private readonly MATCH_TIME = 180000;
+  private isRunning = false;
   readonly deadPlayers: string[] = [];
 
-  constructor(io: Server, roomId: string, bm: BattlefieldMap){
+  constructor(io: Server, roomId: string, bm: BattlefieldMap) {
     this.serverSocket = io;
     this.roomId = roomId;
     this.world = new World(bm);
@@ -47,12 +48,12 @@ export default class RoomManager {
   }
 
   addPlayer(p: Player, timestamp: string): void {
-    if (!this.players.has(p.playerId) ) {
+    if (!this.players.has(p.playerId)) {
       p.moves = [];
       p.moveSwitch = async (latency: number) => {
         if (p.moves) {
           p.stats!.timestamp = this.serverTime.toISOString();
-          setTimeout( () => {
+          setTimeout(() => {
             p.moves!.shift()
             if (p.moves?.length === 0) {
               p.moves.push({
@@ -102,10 +103,10 @@ export default class RoomManager {
   }
 
   getPlayer(playerId: string): Player | undefined {
-    return this.players.get(playerId); 
+    return this.players.get(playerId);
   }
 
-  addMove({playerId, command}: PlayerCommand): void {
+  addMove({ playerId, command }: PlayerCommand): void {
     const p = this.players.get(playerId);
     if (p) {
       const movement = (command as Movement);
@@ -113,7 +114,7 @@ export default class RoomManager {
       p.moves!.push(movement);
       this.emitter.emit('move_switch', ms);
       this.broadcastUpdates({
-        playerId: playerId, 
+        playerId: playerId,
         command: command,
       });
     }
@@ -121,16 +122,17 @@ export default class RoomManager {
 
   setBomb(bomb: Stampable, p: Player): void {
     const ms = this.latencyCalculator(bomb.timestamp, p);
-    this.world.setDinamite(bomb.x,bomb.y, ms);
+    this.world.setDinamite(bomb.x, bomb.y, ms);
     this.broadcastUpdates({
-      playerId: p.playerId, 
+      playerId: p.playerId,
       command: bomb,
     });
   }
 
   private affectedByExplosion(p: Player): void {
-    if(this.world.touchExplosion(p.stats!)){
-      this.serverSocket.emit('player-kill-notification', {data: p.playerId});
+    if (this.world.touchExplosion(p.stats!)) {
+      console.log(p)
+      this.serverSocket.emit('player-kill-notification', { data: p.playerId });
       this.killPlayer(p);
     }
   }
@@ -145,22 +147,22 @@ export default class RoomManager {
     this.deadPlayers.push(p.playerId);
     p.stats!.alive = false;
     p.moves!.shift();
-    return this.players.delete(p.playerId); 
+    return this.players.delete(p.playerId);
   }
-  
-  private latencyCalculator(t1: string, p: Player ): number {
-    const first = new Date(t1); 
-    const last = new Date(p.moves![0].timestamp); 
-    const clientTimeElapsed = first.getTime() - last.getTime(); 
+
+  private latencyCalculator(t1: string, p: Player): number {
+    const first = new Date(t1);
+    const last = new Date(p.moves![0].timestamp);
+    const clientTimeElapsed = first.getTime() - last.getTime();
     const serverTimeElapsed = this.serverTime.getTime() - new Date(p.stats!.timestamp).getTime();
     const latency = clientTimeElapsed - serverTimeElapsed;
     return latency >= 0 ? latency : 0;
   }
 
   private async movePlayer(p: Player): Promise<void> {
-    if(p.moves && p.stats && p.stats.alive) {
+    if (p.moves && p.stats && p.stats.alive) {
       const move = p.moves[0];
-      if(move && isMovement(move) && move.moving){
+      if (move && isMovement(move) && move.moving) {
         /*
         if (verifyPositionTolerance(move.x, p.stats!.x)) {
           p.stats!.x = move.x;
@@ -175,18 +177,18 @@ export default class RoomManager {
           case Direction.Right:
 
             console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision(futurePos)){
+            if (!this.world.checkCollision(futurePos)) {
               p.stats.x += this.VELOCITY;
             } else {
               const block = this.world.battleField.colliding(futurePos).pop()
-              p.stats.x += differenceFinder(p.stats.x, block!.x) - 16 
+              p.stats.x += differenceFinder(p.stats.x, block!.x) - 16
             }
 
             break;
           case Direction.Left:
 
             console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision(futurePos)){
+            if (!this.world.checkCollision(futurePos)) {
               p.stats.x -= this.VELOCITY;
             } else {
               const block = this.world.battleField.colliding(futurePos).pop()
@@ -196,7 +198,7 @@ export default class RoomManager {
           case Direction.Up:
 
             console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision(futurePos)){
+            if (!this.world.checkCollision(futurePos)) {
               p.stats.y -= this.VELOCITY;
             } else {
               const block = this.world.battleField.colliding(futurePos).pop()
@@ -206,7 +208,7 @@ export default class RoomManager {
           case Direction.Down:
 
             console.log(this.world.battleField.colliding(futurePos))
-            if (!this.world.checkCollision(futurePos)){
+            if (!this.world.checkCollision(futurePos)) {
               p.stats.y += this.VELOCITY;
             } else {
               const block = this.world.battleField.colliding(futurePos).pop()
@@ -217,7 +219,7 @@ export default class RoomManager {
 
         p.stats.x = Math.round(p.stats.x);
         p.stats.y = Math.round(p.stats.y);
-        this.affectedByExplosion(p); 
+        this.affectedByExplosion(p);
       }
     }
   }
@@ -225,7 +227,7 @@ export default class RoomManager {
     this.players.forEach((p: Player) => {
       this.movePlayer(p);
     });
-    if(this.players.size <= 1) {
+    if (this.isRunning && this.players.size <= 1) {
       this.endMatch();
     }
   }
@@ -236,11 +238,11 @@ export default class RoomManager {
 
   playerReady(): void {
     this.playersReady++;
-    if(this.playersReady === 2){
+    if (this.playersReady === 2) {
       this.broadcastRoomReady(this.players);
     }
   }
-  
+
   getCampo(): Entity[] {
     return this.world.getCampo();
   }
@@ -248,7 +250,7 @@ export default class RoomManager {
   updatePlayerPosition(requestStatus: Status, playerId: string): void {
     const player = this.players.get(playerId);
     if (player && requestStatus && requestStatus.alive) {
-     correctEntityPosition(player.stats!, requestStatus);
+      correctEntityPosition(player.stats!, requestStatus);
     }
   }
 
@@ -258,13 +260,13 @@ export default class RoomManager {
     rooms.delete(this.roomId);
   }
 
-  get statusInfo(): {roomId: string, numPlayers: number} {
-    return { roomId: this.roomId, numPlayers: this.players.size};
+  get statusInfo(): { roomId: string, numPlayers: number } {
+    return { roomId: this.roomId, numPlayers: this.players.size };
   }
 
   private broadcastRoomReady(playes: Map<string, Player>): void {
     const enterRoomInfo: EnterRoomInfo = {
-      players: [], 
+      players: [],
       map: this.battlefieldMap
     }
     this.players.forEach((v, k) => {
@@ -272,10 +274,10 @@ export default class RoomManager {
     });
 
     this.serverSocket.to(this.roomId).emit('room-ready', {
-      info: this.roomId, 
+      info: this.roomId,
       data: enterRoomInfo
     });
-
-    setTimeout(() => this.endMatch(), this.matchTime);
+    this.isRunning = true;
+    setTimeout(() => this.endMatch(), this.MATCH_TIME);
   }
 }
