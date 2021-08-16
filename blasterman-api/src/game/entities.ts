@@ -71,8 +71,8 @@ export interface Manager {
 }
 
 export class Dinamite  extends EventEmitter implements Entity {
-  readonly width = 24;
-  readonly height = 24;
+  readonly width = 32;
+  readonly height = 32;
   readonly x: number;
   readonly y: number;
   size: number;
@@ -115,7 +115,7 @@ export class World extends EventEmitter {
     }).pop();
 
     if(block && (block as Block).breakable) { 
-      console.log('detectou bloco')
+      //console.log('detectou bloco')
       this.battleField.remove(block); }
   }
 
@@ -170,8 +170,10 @@ export class World extends EventEmitter {
       height: 32,
       elementType: 'explosion'
     }
-    console.log('explosão criada')
+    console.log(this.battleField.colliding(explosion).pop(), explosion, e)
     if(!this.checkCollision(explosion)) {
+
+      console.log('explosão criada')
       this.battleField.push(explosion);
       setTimeout(() => {
         this.battleField.remove(explosion);
@@ -226,6 +228,7 @@ export class World extends EventEmitter {
   
   touchExplosion(entity: Entity): boolean {
     const possibleExplosion = this.battleField.colliding(entity).pop();
+    console.log(possibleExplosion);
     if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
       return true;
     } else { return false;}

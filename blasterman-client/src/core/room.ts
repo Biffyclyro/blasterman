@@ -1,6 +1,7 @@
 import 'phaser'; 
 import WebSocketService from '../services/websocket-service';
-import {centralize, findBlock, API_URL, clientDate} from '../utils/engines';
+import {CLIENT_URL, API_URL} from '../../../shared/common';
+import {centralize, findBlock, clientDate} from '../utils/engines';
 import {
   NearBlocks, 
   Player, 
@@ -137,7 +138,10 @@ export default class Room extends Phaser.Scene {
           p.die();
         }
     });
-    this.socket.on('match-ended', () => alert('acabou'));
+    this.socket.on('match-ended', () => {
+      //alert('acabou')
+      window.location.href = CLIENT_URL; 
+  });
     this.cursors = this.input.keyboard.createCursorKeys();
     console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
       const teste = (e as Phaser.GameObjects.Sprite)
@@ -301,7 +305,7 @@ export default class Room extends Phaser.Scene {
     const dinamite = this.physics.add.sprite(x, y, 'dynamite')
     .setSize(32, 32)
     .setImmovable(true);
-
+    console.log(dinamite)
     const blockList = this.staticBlocks.children.entries;
     const nearBlocks: NearBlocks = {};
     const explosion: Explosion = {

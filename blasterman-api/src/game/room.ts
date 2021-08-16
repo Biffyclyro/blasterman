@@ -176,7 +176,7 @@ export default class RoomManager {
         switch (move.direction) {
           case Direction.Right:
 
-            console.log(this.world.battleField.colliding(futurePos))
+            //console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)) {
               p.stats.x += this.VELOCITY;
             } else {
@@ -187,7 +187,7 @@ export default class RoomManager {
             break;
           case Direction.Left:
 
-            console.log(this.world.battleField.colliding(futurePos))
+            //console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)) {
               p.stats.x -= this.VELOCITY;
             } else {
@@ -197,7 +197,7 @@ export default class RoomManager {
             break;
           case Direction.Up:
 
-            console.log(this.world.battleField.colliding(futurePos))
+            //console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)) {
               p.stats.y -= this.VELOCITY;
             } else {
@@ -207,7 +207,7 @@ export default class RoomManager {
             break;
           case Direction.Down:
 
-            console.log(this.world.battleField.colliding(futurePos))
+            //console.log(this.world.battleField.colliding(futurePos))
             if (!this.world.checkCollision(futurePos)) {
               p.stats.y += this.VELOCITY;
             } else {

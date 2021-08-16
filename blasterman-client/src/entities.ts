@@ -227,12 +227,13 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   private buildCommand(bomb = false): ObjectDto<PlayerCommand> {
     let pc: PlayerCommand;
     if (bomb) {
+      const {x, y} = centralize(this);
       pc = {
         playerId: this.playerId,
         command: {
           timestamp: clientDate.toISOString(),
-          x: this.x,
-          y: this.y
+          x: x,
+          y: y 
         }
       }
 
