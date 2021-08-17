@@ -62,7 +62,7 @@ export default class Room extends Phaser.Scene {
 
     this.socket.on('message', (updateState: ObjectDto<{players:ServerPlayer[], deadPlayers: string[]}>) => {
       if (updateState.info === 'update-state') {
-        console.log(updateState.data);
+        console.log(updateState.data, 'dead-players');
         updateState.data?.players.forEach(sp => {
           const p = this.players.get(sp.playerId);
           if (p){

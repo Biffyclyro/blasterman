@@ -278,6 +278,6 @@ export default class RoomManager {
       data: enterRoomInfo
     });
     this.isRunning = true;
-    setTimeout(() => this.endMatch(), this.MATCH_TIME);
+    //setTimeout(() => this.endMatch(), this.MATCH_TIME);
   }
 }

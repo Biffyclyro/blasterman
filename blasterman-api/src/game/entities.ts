@@ -79,8 +79,8 @@ export class Dinamite  extends EventEmitter implements Entity {
   
   constructor(x: number,y: number, size = 2) {
     super();
-    this.x = x;
-    this.y = y;
+    this.x = x - 6;
+    this.y = y - 5;
     this.size = size;
     setTimeout( this.explode.bind(this), 733);
   }
