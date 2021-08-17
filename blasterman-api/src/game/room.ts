@@ -19,6 +19,7 @@ import {
   correctEntityPosition,
   differenceFinder,
   movementPredictor,
+  eventEmitter,
   verifyPositionTolerance
 } from '../utils/engines'
 import { ObjectDto, rooms } from '../server';
@@ -28,7 +29,7 @@ export default class RoomManager {
   players: Map<string, Player> = new Map();
   playersReady = 0;
   private readonly world: World;
-  private readonly emitter = new EventEmitter();
+  private readonly emitter = eventEmitter;
   private readonly physics = new Physics(this.updateEntities.bind(this));
   private readonly VELOCITY = 2.75;
   private readonly serverTime = new Date();
@@ -130,14 +131,16 @@ export default class RoomManager {
   }
 
   private affectedByExplosion(p: Player): void {
+    console.log(this.world.battleField.colliding(p.stats!).pop())
     if (this.world.touchExplosion(p.stats!)) {
-      console.log(p)
+      console.log('destruiu o player')
       this.serverSocket.emit('player-kill-notification', { data: p.playerId });
       this.killPlayer(p);
     }
   }
 
   private explosionHandler(): void {
+    console.log('lidando com a explosão')
     this.players.forEach(p => {
       this.affectedByExplosion(p);
     });
@@ -255,9 +258,14 @@ export default class RoomManager {
   }
 
   private endMatch(): void {
-    this.serverSocket.to(this.roomId).emit('match-ended');
-    this.serverSocket.removeAllListeners(this.roomId);
-    rooms.delete(this.roomId);
+    if (this.isRunning) {
+      this.isRunning = false;
+      setTimeout(() => {
+        //this.serverSocket.to(this.roomId).emit('match-ended');
+        //this.serverSocket.removeAllListeners(this.roomId);
+        //rooms.delete(this.roomId);
+      }, 2000);
+    }
   }
 
   get statusInfo(): { roomId: string, numPlayers: number } {
@@ -278,6 +286,6 @@ export default class RoomManager {
       data: enterRoomInfo
     });
     this.isRunning = true;
-    //setTimeout(() => this.endMatch(), this.MATCH_TIME);
+    setTimeout(() => this.endMatch(), this.MATCH_TIME);
   }
 }

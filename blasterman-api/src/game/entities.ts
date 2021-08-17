@@ -1,6 +1,7 @@
 import EventEmitter from 'events';
 import RoomManager from './room';
 import Quadtree from 'quadtree-lib';
+import { eventEmitter } from '../utils/engines';
 
 export enum Direction {
   Up = 38,
@@ -70,15 +71,15 @@ export interface Manager {
   password: string;
 }
 
-export class Dinamite  extends EventEmitter implements Entity {
+export class Dinamite implements Entity {
   readonly width = 32;
   readonly height = 32;
   readonly x: number;
   readonly y: number;
   size: number;
+  emitter = eventEmitter;
   
   constructor(x: number,y: number, size = 2) {
-    super();
     this.x = x - 6;
     this.y = y - 5;
     this.size = size;
@@ -86,16 +87,16 @@ export class Dinamite  extends EventEmitter implements Entity {
   }
 
   explode(): void {
-   this.emit('explode', this); 
+   this.emitter.emit('explode', this); 
   }
 }
 
-export class World extends EventEmitter {
+export class World {
   readonly battleField: Quadtree<Entity> = new Quadtree({width:1366, height:768});
   private readonly BLOCK_SIZE = 32;
+  emitter = eventEmitter;
 
   constructor(bm: BattlefieldMap) {
-    super();
     this.buildMap(bm);
   }
 
@@ -123,7 +124,7 @@ export class World extends EventEmitter {
     setTimeout(() => {
       if (!this.checkCollision({ x: x, y: y })) {
         let dinamite: Dinamite | null = new Dinamite(x, y);
-        dinamite.on('explode', (d: Dinamite) => {
+        dinamite.emitter.on('explode', (d: Dinamite) => {
           if (d === dinamite) {
             this.explode(d);
             dinamite = null;
@@ -136,7 +137,6 @@ export class World extends EventEmitter {
 
   explode(d: Dinamite): void{
     this.battleField.remove(d);
-    d.emit('explosion');
     let sectionSize = 0;
     const explosionSection = {
       up: true,
@@ -160,6 +160,7 @@ export class World extends EventEmitter {
         explosionSection.left = this.createExplosion({x: d.x - sectionSize, y: d.y});
       }
     }
+    d.emitter.emit('explosion');
   }
 
   createExplosion(e: Entity): boolean{
@@ -170,7 +171,7 @@ export class World extends EventEmitter {
       height: 32,
       elementType: 'explosion'
     }
-    console.log(this.battleField.colliding(explosion).pop(), explosion, e)
+   // console.log(this.battleField.colliding(explosion).pop(), explosion, e)
     if(!this.checkCollision(explosion)) {
 
       console.log('explosão criada')
@@ -228,7 +229,7 @@ export class World extends EventEmitter {
   
   touchExplosion(entity: Entity): boolean {
     const possibleExplosion = this.battleField.colliding(entity).pop();
-    console.log(possibleExplosion);
+    //console.log(possibleExplosion);
     if(possibleExplosion && (possibleExplosion as Explosion).elementType === 'explosion') {
       return true;
     } else { return false;}

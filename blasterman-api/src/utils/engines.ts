@@ -1,7 +1,10 @@
 import express from 'express';
 import {v4 as uuid} from 'uuid';
 import { ObjectDto } from '../server';
+import EventEmitter from 'events';
 import { Direction, Entity } from '../game/entities';
+
+export const eventEmitter = new EventEmitter();
 
 export const idGenerator = (): string => {
   return uuid(); 
