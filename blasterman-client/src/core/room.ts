@@ -133,15 +133,16 @@ export default class Room extends Phaser.Scene {
     });
     this.socket.on('command', this.commandHandler.bind(this));
     this.socket.on('player-kill-notification', (playerId: ObjectDto<string>) => {
-        const p = this.players.get(playerId.data!);
-        if (p && p.alive) {
-          p.die();
-        }
+      const p = this.players.get(playerId.data!);
+      if (p && p.alive) {
+        p.die();
+      }
     });
-    this.socket.on('match-ended', () => {
+    this.socket.on('match-ended', (victorious: ObjectDto<string>) => {
       //alert('acabou')
-      window.location.href = CLIENT_URL; 
-  });
+      this.scene.start('EndMatchScreen', { skin: victorious.data!});
+      //window.location.href = CLIENT_URL;
+    });
     this.cursors = this.input.keyboard.createCursorKeys();
     console.log(JSON.stringify(this.staticBlocks.getChildren().map( e => {
       const teste = (e as Phaser.GameObjects.Sprite)
@@ -185,7 +186,7 @@ export default class Room extends Phaser.Scene {
     this.socket.emit('command', pc);
   }
 
-  addEntity<T extends Phaser.GameObjects.GameObject>(e: T): T{
+  addEntity<T extends Phaser.GameObjects.GameObject>(e: T): T {
     this.add.existing(e);
     this.physics.add.existing(e);
     this.physics.add.collider(this.staticBlocks, e);

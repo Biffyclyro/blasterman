@@ -260,10 +260,17 @@ export default class RoomManager {
   private endMatch(): void {
     if (this.isRunning) {
       this.isRunning = false;
+      const victorious = Array.from(this.players.values()).pop();
       setTimeout(() => {
-        //this.serverSocket.to(this.roomId).emit('match-ended');
-        //this.serverSocket.removeAllListeners(this.roomId);
-        //rooms.delete(this.roomId);
+        let textureId: string;
+        if (victorious) {
+          textureId = victorious.skin!;
+        } else {
+          textureId = 'dinamite';
+        }
+        this.serverSocket.to(this.roomId).emit('match-ended', {data: textureId});
+        this.serverSocket.removeAllListeners(this.roomId);
+        rooms.delete(this.roomId);
       }, 2000);
     }
   }

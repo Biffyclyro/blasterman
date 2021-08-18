@@ -1,4 +1,5 @@
 import 'phaser';
+import EndMatchScreen from './core/end-match-screen';
 import LoadingScreen from './core/loading-screen';
 import RoomManager from './core/room';
 import SearchScreen from './core/search-room';
@@ -58,12 +59,11 @@ const config = {
   type: Phaser.CANVAS,
   width: 1366,
   height: 768,
-  scene: [Main, LoadingScreen, RoomManager, SearchScreen],
+  scene: [Main, LoadingScreen, RoomManager, SearchScreen, EndMatchScreen],
   physics: {
     default: 'arcade',
     arcade: {
       debug: false
-
     }
   } 
 }
