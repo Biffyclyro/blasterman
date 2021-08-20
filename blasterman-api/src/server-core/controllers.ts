@@ -4,6 +4,7 @@ import BfModel from './db-model';
 import { ObjectDto, rooms } from '../server';
 import { idGenerator } from '../utils/engines';
 import { BattlefieldMap, Entity } from '../game/entities';
+import jwt from 'jsonwebtoken';
 
 const router = express.Router();
 
@@ -42,6 +43,13 @@ router.get('/rooms-debug', async (req: express.Request,
   const dto = mapas;
 
   res.send(dto);
+});
+
+//user login
+
+router.post('/login', async (req: express.Request<ObjectDto<{email: string, password: string}>>,
+                             res: express.Response) => {
+  res.send( {data:jwt.sign(req.body.data, 'teste')});
 });
 
 // get one map

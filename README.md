@@ -7,7 +7,7 @@
 ## To-do
 - [x] DB connection
 - [x] Map Editor 
-- [ ] Server-side bomb
+- [x] Server-side bomb
 - [x] Match time
-- [ ] Match ending 
-- [ ] Victory screen
+- [x] Match ending 
+- [X] Final screen
