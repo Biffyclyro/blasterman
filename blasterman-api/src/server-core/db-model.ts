@@ -7,6 +7,11 @@ const battleFieldMapSchema = new mongoose.Schema<BattlefieldMap>({
   background: { key: String, url: String }
 });
 
-const BfModel = mongoose.model<BattlefieldMap>('BattlefieldMap', battleFieldMapSchema);
+const userSchema = new mongoose.Schema({
+  email: String,
+  password: String
+});
 
-export default BfModel;
+export const BfModel = mongoose.model<BattlefieldMap>('BattlefieldMap', battleFieldMapSchema);
+
+export const UserModel = mongoose.model('User', userSchema);

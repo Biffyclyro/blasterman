@@ -4,7 +4,7 @@ import RoomManager from './game/room';
 import router from './server-core/controllers';
 import {socketHandler} from "./server-core/socket-handler"
 import "./server-core/db-connection";
-import { verifyRequest } from "./utils/engines";
+import {encrypter, verifyRequest } from "./utils/engines";
 
 export interface ObjectDto<T> {
   info?: string;
@@ -14,6 +14,8 @@ export interface ObjectDto<T> {
 export const rooms = new Map<string, RoomManager>();
 const port = 8090 
 const app: express.Application = express();
+
+encrypter('teste').then(x => console.log(x));
 
 app.use(express.json());
 /*const corsOptions = {

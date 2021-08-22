@@ -3,11 +3,16 @@ import {v4 as uuid} from 'uuid';
 import { ObjectDto } from '../server';
 import EventEmitter from 'events';
 import { Direction, Entity } from '../game/entities';
+import bcrypt from 'bcryptjs'
 
 export const eventEmitter = new EventEmitter();
 
 export const idGenerator = (): string => {
   return uuid(); 
+}
+
+export const encrypter = (pw: string): Promise<string> => {
+  return bcrypt.hash(pw, 10);
 }
 
 export const verifyPositionTolerance = (a: number, b: number): boolean => {

@@ -1,10 +1,11 @@
 /* eslint-disable no-irregular-whitespace */
 import express from 'express';
-import BfModel from './db-model';
+import {BfModel, UserModel} from './db-model';
 import { ObjectDto, rooms } from '../server';
-import { idGenerator } from '../utils/engines';
+import { encrypter, idGenerator } from '../utils/engines';
 import { BattlefieldMap, Entity } from '../game/entities';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 const router = express.Router();
 
@@ -13,6 +14,12 @@ export const getMap = async (): Promise<BattlefieldMap | null> => {
   const mapsList = await BfModel.find();
   const index = Math.floor(Math.random() * mapsList.length);
   return mapsList[index];
+}
+
+export const saveUser = async ({email, password}:{email:string, password: string}): Promise<void> => {
+  await encrypter(password).then(async pw => {
+    await UserModel.create({ email: email, password: pw });
+  });
 }
 
 router.get('/connect-server', async (req: express.Request,
@@ -49,7 +56,22 @@ router.get('/rooms-debug', async (req: express.Request,
 
 router.post('/login', async (req: express.Request<ObjectDto<{email: string, password: string}>>,
                              res: express.Response) => {
-  res.send( {data:jwt.sign(req.body.data, 'teste')});
+                               
+  await UserModel.find().then((u: { _id: string, email: string, password: string }[]) => {
+    const user = u.pop(); 
+    const dbHash = user?.password;
+    const reqPassword = req.body.data.password;
+    const reqEmail = req.body.data.email;
+    const dbEmail = user?.email;
+
+    if (reqEmail === dbEmail) {
+      if (reqPassword && dbHash && bcrypt.compareSync(reqPassword, dbHash)) {
+        res.send({ data: jwt.sign(req.body.data, dbHash) });
+      } else {
+        res.send('credenciais incorretas!');
+      }
+    }
+  });
 });
 
 // get one map
