@@ -32,10 +32,13 @@ export const correctEntityPosition = (a: Entity, b: Entity): void => {
   }
 }
 
+export const tokenExtractor = (req: express.Request): string | undefined => {
+  return req.header('Authorization')?.split(" ")[1];
+} 
+
 export const verifyRequest = (req: express.Request, 
                               res: express.Response, 
                               next: express.NextFunction): void => {
-
   const body = req.body;                              
   if (isValidRequest(body) || Object.keys(body).length === 0 ) {
     return next();

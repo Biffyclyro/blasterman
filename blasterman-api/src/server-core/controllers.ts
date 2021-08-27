@@ -2,7 +2,7 @@
 import express from 'express';
 import {BfModel, UserModel} from './db-model';
 import { ObjectDto, rooms } from '../server';
-import { encrypter, idGenerator } from '../utils/engines';
+import { encrypter, idGenerator, tokenExtractor } from '../utils/engines';
 import { BattlefieldMap, Entity } from '../game/entities';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -21,6 +21,20 @@ export const saveUser = async ({email, password}:{email:string, password: string
     await UserModel.create({ email: email, password: pw });
   });
 }
+
+const verifyUser = async (token: string): Promise<boolean> => {
+  return await UserModel.find().then((u: { _id: string; email: string; password: string; }[]) => {
+    const user = u.pop();
+    const key = user?.password;
+    if (key) {
+      const possibleUser: jwt.JwtPayload | string = jwt.verify(token, key);
+      if (typeof possibleUser !== 'string' && possibleUser.password === key) {
+        return true;
+      }
+    }
+    return false;
+  });
+} 
 
 router.get('/connect-server', async (req: express.Request,
   res: express.Response) => {
@@ -78,7 +92,8 @@ router.post('/login', async (req: express.Request<ObjectDto<{email: string, pass
 router.get('/map/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
-  if (id) {
+  const token = tokenExtractor(req); 
+  if (id && token && verifyUser(token)) {
     const map = await BfModel.findById(id);
     if (map) {
       res.send({ info: map._id, data: map });
@@ -88,16 +103,20 @@ router.get('/map/:id', async (req: express.Request,
 //get all maps
 router.get('/get-maps', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap[]>>) => {
-  const maps = await BfModel.find();
-  res.send({ data: maps });
+
+  const token = tokenExtractor(req);
+  if (token && verifyUser(token)) {
+    const maps = await BfModel.find();
+    res.send({ data: maps });
+  }
 });
 //delete map
 router.delete('/:id', async (req: express.Request,
   res: express.Response<ObjectDto<unknown>>) => {
 
   const id = req.params.id;
-
-  if (id) {
+  const token = tokenExtractor(req);
+  if (id && token && verifyUser(token)) {
     const map = await BfModel.findById(id);
     if (map) {
       map.remove();
@@ -110,21 +129,26 @@ router.post('/update/:id', async (req: express.Request,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
   const id = req.params.id;
   const updatedMap = req.body.data;
-  const map = await BfModel.findByIdAndUpdate(id, updatedMap, { new: true });
-  if (map) {
-    res.send({ info: map._id, data: map });
-  } else {
-    res.send({ info: 'erro ao atualizar' });
+  const token = tokenExtractor(req);
+  if (token && verifyUser(token)) {
+    const map = await BfModel.findByIdAndUpdate(id, updatedMap, { new: true });
+    if (map) {
+      res.send({ info: map._id, data: map });
+    } else {
+      res.send({ info: 'erro ao atualizar' });
+    }
   }
 });
 //create new map
 router.post('/new-map', async (req: express.Request<ObjectDto<BattlefieldMap>>,
   res: express.Response<ObjectDto<BattlefieldMap>>) => {
+  const token = tokenExtractor(req);
+  
+  if (token && verifyUser(token)) {
+    const map = await BfModel.create(req.body.data);
 
-  console.log(req.body)
-  const map = await BfModel.create(req.body.data);
-
-  res.send({ info: map._id, data: map });
+    res.send({ info: map._id, data: map });
+  }
 });
 
 export default router;
