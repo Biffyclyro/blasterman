@@ -1,5 +1,7 @@
 # Blasterman
 
+A game inspired by bomberman.
+
 * Build all aplication: python complete-builder.py
 * Build server: docker build --tag blasterman-api .
 
